@@ -1,0 +1,8 @@
+name = "studio-makalah-uin-khas"
+compatibility_date = "2024-11-01"
+pages_build_output_dir = "."
+
+[[kv_namespaces]]
+binding = "MAKALAH_KV"
+id = "makalah_kv_production_id"
+preview_id = "makalah_kv_preview_id"

@@ -1,0 +1,726 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Studio Makalah Akademik — UIN KHAS Jember</title>
+    <link rel="stylesheet" href="/style.css">
+</head>
+
+<body>
+    <div class="app-shell">
+        <header class="app-header">
+            <div class="brand-wrap">
+                <div class="logo-secret-trigger" onclick="handleLogoSecretTap()" title="Logo UIN KHAS Jember">
+                    <img src="https://lh3.googleusercontent.com/d/1abt15uTvX-593w_xSlrRm6IGEsf7Iqnc" alt="Logo"
+                        class="brand-logo-img"
+                        onerror="this.style.display='none'; document.getElementById('logoFallback').style.display='flex';">
+                    <div id="logoFallback" class="brand-logo-fallback" style="display:none;">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#0F766E" stroke-width="2"
+                            stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path>
+                            <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path>
+                        </svg>
+                        <span>Logo</span>
+                    </div>
+                </div>
+                <div class="brand-text-col">
+                    <h1 class="brand-title">Studio Makalah Akademik</h1>
+                    <p class="brand-subtitle">Otomatisasi Makalah Akademik UIN KHAS Jember</p>
+                </div>
+            </div>
+
+            <div class="top-stepper">
+                <button type="button" class="step-circle active" data-step="step-identitas"
+                    onclick="switchStep('step-identitas')" title="01: Sampul & Identitas">01</button>
+                <div class="step-line"></div>
+                <button type="button" class="step-circle" data-step="step-pengantar"
+                    onclick="switchStep('step-pengantar')" title="02: Kata Pengantar">02</button>
+                <div class="step-line"></div>
+                <button type="button" class="step-circle" data-step="step-daftarisi"
+                    onclick="switchStep('step-daftarisi')" title="03: Daftar Isi">03</button>
+                <div class="step-line"></div>
+                <button type="button" class="step-circle" data-step="step-bab1" onclick="switchStep('step-bab1')"
+                    title="04: Bab I Pendahuluan">04</button>
+                <div class="step-line"></div>
+                <button type="button" class="step-circle" data-step="step-bab2" onclick="switchStep('step-bab2')"
+                    title="05: Bab II Pembahasan">05</button>
+                <div class="step-line"></div>
+                <button type="button" class="step-circle" data-step="step-bab3" onclick="switchStep('step-bab3')"
+                    title="06: Bab III Penutup">06</button>
+                <div class="step-line"></div>
+                <button type="button" class="step-circle" data-step="step-pustaka" onclick="switchStep('step-pustaka')"
+                    title="07: Daftar Pustaka">07</button>
+            </div>
+
+            <div class="header-controls">
+                <button type="button" class="btn-intro-trigger" onclick="openIntroModal()">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                        stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="10"></circle>
+                        <line x1="12" y1="16" x2="12" y2="12"></line>
+                        <line x1="12" y1="8" x2="12.01" y2="8"></line>
+                    </svg>
+                    <span>Panduan</span>
+                </button>
+            </div>
+        </header>
+
+        <div id="floatingActionBar" class="floating-action-bar hidden">
+            <button type="button" class="action-bar-btn" onclick="openDownloadModal()" title="Unduh File Makalah">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                    stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                    <polyline points="7 10 12 15 17 10"></polyline>
+                    <line x1="12" y1="15" x2="12" y2="3"></line>
+                </svg>
+                <span>Unduh</span>
+            </button>
+            <div class="action-divider"></div>
+            <button type="button" id="btnOpenDoc" class="action-bar-btn edit-docs-btn" onclick="triggerPrintPdf()"
+                title="Cetak atau Simpan PDF Makalah">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                    stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="6 9 6 2 18 2 18 9"></polyline>
+                    <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path>
+                    <rect x="6" y="14" width="12" height="8"></rect>
+                </svg>
+                <span>Cetak / Pratinjau PDF</span>
+            </button>
+            <div class="action-divider"></div>
+            <button type="button" class="action-bar-btn" onclick="toggleSplitPreview()"
+                title="Tampilkan / Sembunyikan Panel Pratinjau">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                    stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                    <circle cx="12" cy="12" r="3"></circle>
+                </svg>
+                <span id="lblTogglePreview">Pratinjau</span>
+            </button>
+        </div>
+
+        <aside class="floating-left-dock">
+            <button type="button" id="dockManualBtn" class="dock-btn active" onclick="setEditorMode('manual')"
+                title="Mode Input Manual">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                    stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                    <polyline points="14 2 14 8 20 8"></polyline>
+                </svg>
+            </button>
+
+            <button type="button" id="dockAiBtn" class="dock-btn dock-ai-text" onclick="setEditorMode('ai')"
+                title="Mode Asisten AI">
+                AI
+            </button>
+
+            <div class="dock-separator"></div>
+
+            <button type="button" id="dockToolFocus" class="dock-btn tool-active" onclick="focusActivePanelInput()"
+                title="Fokus ke Kolom Ketik Aktif">
+                <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                    stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M12 20h9"></path>
+                    <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path>
+                </svg>
+            </button>
+
+            <button type="button" class="dock-btn" onclick="insertTemplateParagraph()"
+                title="Sisipkan Paragraf Akademik Baru">
+                <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                    stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="4" y="2" width="16" height="20" rx="2" ry="2"></rect>
+                    <line x1="8" y1="6" x2="16" y2="6"></line>
+                    <line x1="8" y1="10" x2="16" y2="10"></line>
+                    <line x1="8" y1="14" x2="12" y2="14"></line>
+                </svg>
+            </button>
+
+            <button type="button" class="dock-btn" onclick="insertActiveFootnote()"
+                title="Sisipkan Catatan Kaki Native (CMOS 17th)">
+                <span class="dock-brace-icon">{1}</span>
+            </button>
+
+            <button type="button" class="dock-btn" onclick="insertActiveBlockquote()"
+                title="Sisipkan Kutipan Panjang (&ge; 5 Baris)">
+                <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                    stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                    <polyline points="14 2 14 8 20 8"></polyline>
+                    <line x1="16" y1="13" x2="8" y2="13"></line>
+                    <line x1="16" y1="17" x2="8" y2="17"></line>
+                </svg>
+            </button>
+
+            <button type="button" class="dock-btn" onclick="scrollToBottomGenerate()"
+                title="Lompat ke Tombol Buat Dokumen">
+                <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                    stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+                    <polyline points="8 12 12 16 16 12"></polyline>
+                    <line x1="12" y1="8" x2="12" y2="16"></line>
+                </svg>
+            </button>
+
+            <div class="dock-separator"></div>
+
+            <button type="button" id="dockMoreBtn" class="dock-btn" onclick="toggleOptionsPopover()"
+                title="Komponen Opsional & Info File">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                    stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="12" cy="12" r="1"></circle>
+                    <circle cx="19" cy="12" r="1"></circle>
+                    <circle cx="5" cy="12" r="1"></circle>
+                </svg>
+            </button>
+        </aside>
+
+        <div id="optionsPopover" class="options-popover hidden">
+            <div class="popover-title">KOMPONEN OPSIONAL</div>
+            <div class="switch-group">
+                <label class="switch-row">
+                    <span>C. Tujuan Penulisan</span>
+                    <input type="checkbox" id="chkTujuan" onchange="syncOptionalModules()">
+                </label>
+                <label class="switch-row">
+                    <span>B. Saran (Bab III)</span>
+                    <input type="checkbox" id="chkSaran" onchange="syncOptionalModules()">
+                </label>
+            </div>
+            <div class="popover-divider"></div>
+            <div class="file-tag-label">NAMA FILE LUARAN</div>
+            <div class="file-tag-value" id="lblFileName">Kelompok 1 Mata Kuliah</div>
+            <div class="status-pill" id="statusPill">Siap Membuat Dokumen</div>
+        </div>
+
+        <div id="workspaceSplitWrapper" class="workspace-split-wrapper">
+            <main class="center-canvas" id="mainScrollCanvas">
+                <div class="canvas-container">
+                    <div id="aiAssistantBanner" class="ai-banner hidden">
+                        <div class="ai-banner-content">
+                            <div class="ai-title-row">
+                                <span class="ai-badge">PENULIS AKADEMIK AI</span>
+                                <h3>Generator Draf Otomatis Berstandar CMOS Edisi ke-17</h3>
+                            </div>
+                            <p>Pastikan Judul Makalah dan Mata Kuliah telah diisi. Asisten AI akan menyusun Kata
+                                Pengantar, Latar Belakang, Rumusan Masalah, Sub-bab Pembahasan beserta Catatan Kaki
+                                Native (halaman spesifik), Kesimpulan, dan Daftar Pustaka (rentang halaman) secara
+                                otomatis.</p>
+                            <div class="ai-input-group">
+                                <button type="button" id="btnRunAi" class="btn-ai-run"
+                                    onclick="runSmartAssistant()">Buat
+                                    Draf Makalah Otomatis dengan AI</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <section id="step-identitas" class="step-panel active">
+                        <div class="panel-head">
+                            <div>
+                                <span class="panel-kicker">BAGIAN 01</span>
+                                <h2>Identitas Sampul & Anggota Kelompok</h2>
+                            </div>
+                        </div>
+
+                        <div class="form-stack">
+                            <div class="input-block">
+                                <label>Judul Makalah</label>
+                                <input type="text" id="inpJudul" class="form-input"
+                                    placeholder="Ketik judul lengkap makalah Anda..." oninput="refreshTocPreview()">
+                            </div>
+
+                            <div class="grid-3">
+                                <div class="input-block">
+                                    <label>Nama Kelompok</label>
+                                    <input type="text" id="inpKelompok" class="form-input" value="Kelompok 1"
+                                        oninput="updateOutputFileName()">
+                                </div>
+                                <div class="input-block">
+                                    <label>Nama Mata Kuliah</label>
+                                    <input type="text" id="inpMataKuliah" class="form-input"
+                                        placeholder="Nama mata kuliah..." oninput="updateOutputFileName()">
+                                </div>
+                                <div class="input-block">
+                                    <label>Dosen Pengampu</label>
+                                    <input type="text" id="inpDosen" class="form-input"
+                                        placeholder="Nama dosen beserta gelar...">
+                                </div>
+                            </div>
+
+                            <div class="grid-2">
+                                <div class="input-block">
+                                    <label>Fakultas</label>
+                                    <select id="selFakultas" class="form-input uppercase-input"
+                                        onchange="handleFakultasChange()">
+                                        <option value="TARBIYAH DAN ILMU KEGURUAN">FAKULTAS TARBIYAH DAN ILMU KEGURUAN
+                                            (FTIK)</option>
+                                        <option value="SYARIAH">FAKULTAS SYARIAH</option>
+                                        <option value="EKONOMI DAN BISNIS ISLAM">FAKULTAS EKONOMI DAN BISNIS ISLAM
+                                            (FEBI)</option>
+                                        <option value="DAKWAH">FAKULTAS DAKWAH</option>
+                                        <option value="USHULUDDIN, ADAB, DAN HUMANIORA">FAKULTAS USHULUDDIN, ADAB, DAN
+                                            HUMANIORA (FUAH)</option>
+                                    </select>
+                                </div>
+                                <div class="input-block">
+                                    <label>Program Studi</label>
+                                    <select id="selProdi" class="form-input uppercase-input"></select>
+                                </div>
+                            </div>
+
+                            <div class="grid-2">
+                                <div class="input-block">
+                                    <label>Kota</label>
+                                    <input type="text" id="inpKota" class="form-input uppercase-input" value="JEMBER"
+                                        oninput="this.value = this.value.toUpperCase()">
+                                </div>
+                                <div class="input-block">
+                                    <label>Bulan & Tahun</label>
+                                    <input type="text" id="inpBulanTahun" class="form-input uppercase-input"
+                                        value="NOVEMBER 2026" oninput="this.value = this.value.toUpperCase()">
+                                </div>
+                            </div>
+
+                            <div class="nested-box">
+                                <div class="nested-head">
+                                    <div>
+                                        <h4>Anggota Kelompok</h4>
+                                        <p>Tambahkan nama lengkap dan Nomor Induk Mahasiswa (NIM)</p>
+                                    </div>
+                                    <button type="button" class="btn-outline-sm" onclick="addMember()">+ Tambah
+                                        Anggota</button>
+                                </div>
+                                <div id="membersList" class="dynamic-rows"></div>
+                            </div>
+                        </div>
+                    </section>
+
+                    <section id="step-pengantar" class="step-panel">
+                        <div class="panel-head">
+                            <div>
+                                <span class="panel-kicker">BAGIAN 02</span>
+                                <h2>Kata Pengantar</h2>
+                            </div>
+                        </div>
+
+                        <div class="form-stack">
+                            <div class="input-block">
+                                <label>Teks Kata Pengantar</label>
+                                <textarea id="txtKataPengantar" class="form-textarea"
+                                    rows="9">Puji syukur kami panjatkan ke hadirat Allah SWT atas limpahan rahmat, taufik, dan hidayah-Nya sehingga makalah ini dapat diselesaikan dengan baik. Shalawat serta salam semoga senantiasa tercurahkan kepada junjungan kita Nabi Muhammad SAW.
+
+Makalah ini disusun untuk memenuhi tugas akademik sekaligus menambah wawasan keilmuan di lingkungan UIN Kiai Haji Achmad Siddiq Jember. Kami menyadari bahwa dalam penyusunan makalah ini masih terdapat kekurangan. Oleh karena itu, kritik dan saran yang konstruktif sangat kami harapkan.</textarea>
+                            </div>
+                        </div>
+                    </section>
+
+                    <section id="step-daftarisi" class="step-panel">
+                        <div class="panel-head">
+                            <div>
+                                <span class="panel-kicker">BAGIAN 03</span>
+                                <h2>Daftar Isi Otomatis (Tabel 2 Kolom Rata Kanan)</h2>
+                            </div>
+                            <span class="tag-badge">&lt;DaftarIsi&gt;</span>
+                        </div>
+
+                        <p class="section-note">Daftar isi disusun secara otomatis pada tag
+                            <code>&lt;DaftarIsi&gt;</code> menggunakan struktur Tabel 2 Kolom Tanpa Garis Tepian.
+                            Halaman Kata Pengantar dan Daftar Isi otomatis diformat menggunakan angka Romawi kecil
+                            (<code>i, ii, iii</code>), sedangkan Bab I hingga Daftar Pustaka menggunakan angka biasa
+                            (<code>1, 2, 3</code>).
+                        </p>
+
+                        <div class="mendeley-toc-box" id="tocLivePreview"></div>
+                    </section>
+
+                    <section id="step-bab1" class="step-panel">
+                        <div class="panel-head">
+                            <div>
+                                <span class="panel-kicker">BAGIAN 04</span>
+                                <h2>Bab I: Pendahuluan</h2>
+                            </div>
+                        </div>
+
+                        <div class="helper-toolbar">
+                            <span>Alat Format Kutipan CMOS 17th:</span>
+                            <button type="button" class="btn-chip"
+                                onclick="insertFormatting('txtLatarBelakang', '^[Nama Penulis, Judul Buku (Kota: Penerbit, 2024), 15.]')">+
+                                Catatan Kaki Native (Akhir Kalimat)</button>
+                            <button type="button" class="btn-chip"
+                                onclick="insertFormatting('txtLatarBelakang', '\n[BLOCKQUOTE] ')">+ Kutipan Panjang &ge;
+                                5 Baris</button>
+                        </div>
+
+                        <div class="form-stack">
+                            <div class="input-block">
+                                <label>A. Latar Belakang</label>
+                                <textarea id="txtLatarBelakang" class="form-textarea" rows="9"
+                                    placeholder="Ketik paragraf latar belakang teoretis dan praktis. Letakkan tag ^[Nama Penulis, Judul Buku (Kota: Penerbit, Tahun), hlm.] di akhir kalimat untuk membuat Native Footnote otomatis..."></textarea>
+                            </div>
+
+                            <div class="nested-box">
+                                <div class="nested-head">
+                                    <div>
+                                        <h4>B. Rumusan Masalah</h4>
+                                        <p>Penomoran otomatis (1, 2, 3...)</p>
+                                    </div>
+                                    <button type="button" class="btn-outline-sm" onclick="addRumusan()">+ Tambah
+                                        Rumusan</button>
+                                </div>
+                                <div id="rumusanList" class="dynamic-rows"></div>
+                            </div>
+
+                            <div id="boxTujuan" class="nested-box hidden">
+                                <div class="nested-head">
+                                    <div>
+                                        <h4>C. Tujuan Penulisan</h4>
+                                        <p>Sesuaikan dengan jumlah rumusan masalah</p>
+                                    </div>
+                                    <button type="button" class="btn-outline-sm" onclick="addTujuan()">+ Tambah
+                                        Tujuan</button>
+                                </div>
+                                <div id="tujuanList" class="dynamic-rows"></div>
+                            </div>
+                        </div>
+                    </section>
+
+                    <section id="step-bab2" class="step-panel">
+                        <div class="panel-head">
+                            <div>
+                                <span class="panel-kicker">BAGIAN 05</span>
+                                <h2>Bab II: Pembahasan</h2>
+                            </div>
+                            <button type="button" class="btn-outline-primary" onclick="addBab2Sub()">+ Tambah Sub-bab
+                                (A, B, C...)</button>
+                        </div>
+
+                        <p class="section-note">Susun materi pembahasan ke dalam Sub-bab (A, B...) dan Anak Sub-bab (1,
+                            2...). Letakkan tag <code>^[Nama Penulis, Judul Buku (Kota: Penerbit, Tahun), hlm.]</code>
+                            di akhir kalimat/kutipan untuk menyisipkan Native Footnote (angka superskrip otomatis yang
+                            terhubung langsung dengan catatan kaki di halaman yang sama, ukuran 10 pt, spasi tunggal,
+                            baris pertama masuk 1,27 cm).</p>
+
+                        <div id="bab2List" class="bab2-container"></div>
+                    </section>
+
+                    <section id="step-bab3" class="step-panel">
+                        <div class="panel-head">
+                            <div>
+                                <span class="panel-kicker">BAGIAN 06</span>
+                                <h2>Bab III: Penutup</h2>
+                            </div>
+                        </div>
+
+                        <div class="form-stack">
+                            <div class="input-block">
+                                <label>A. Kesimpulan</label>
+                                <textarea id="txtKesimpulan" class="form-textarea" rows="7"
+                                    placeholder="Ketik ringkasan kesimpulan yang menjawab rumusan masalah..."></textarea>
+                            </div>
+
+                            <div id="boxSaran" class="input-block hidden">
+                                <label>B. Saran</label>
+                                <textarea id="txtSaran" class="form-textarea" rows="5"
+                                    placeholder="Ketik saran konstruktif..."></textarea>
+                            </div>
+                        </div>
+                    </section>
+
+                    <section id="step-pustaka" class="step-panel">
+                        <div class="panel-head">
+                            <div>
+                                <span class="panel-kicker">BAGIAN 07</span>
+                                <h2>Daftar Pustaka (Chicago Manual of Style Edisi ke-17)</h2>
+                            </div>
+                        </div>
+
+                        <div class="helper-toolbar">
+                            <span>Contoh Format CMOS 17th (Rentang Halaman):</span>
+                            <button type="button" class="btn-chip" onclick="insertBibliographySample('book')">+ Contoh
+                                Bab Buku</button>
+                            <button type="button" class="btn-chip" onclick="insertBibliographySample('journal')">+
+                                Contoh Artikel Jurnal</button>
+                        </div>
+
+                        <div class="form-stack">
+                            <div class="input-block">
+                                <label>Entri Daftar Pustaka (1 Baris = 1 Referensi, Otomatis Diurutkan Sesuai
+                                    Abjad)</label>
+                                <p class="field-hint">Format otomatis: huruf 12 pt, spasi tunggal (1,0), baris kedua dan
+                                    seterusnya menjorok 1,27 cm (hanging indent), jarak antar pustaka 12 pt, serta
+                                    mencantumkan rentang halaman untuk bab atau bagian yang dirujuk.</p>
+                                <textarea id="txtDaftarPustaka" class="form-textarea" rows="9"
+                                    placeholder="Siddiq, Achmad. &quot;Konsep Pendidikan Karakter.&quot; Dalam Pemikiran Pendidikan Islam, 45-68. Jember: IAIN Jember Press, 2018.&#10;Wahid, Abdurrahman. &quot;Pribumisasi Islam.&quot; Dalam Islam Kosmopolitan, 112-135. Jakarta: The Wahid Institute, 2007."></textarea>
+                            </div>
+                        </div>
+                    </section>
+
+                    <div id="bottomGenerateBar" class="bottom-generate-card">
+                        <div class="bottom-generate-info">
+                            <h4>Siap Menyusun Dokumen Makalah?</h4>
+                            <p>Pastikan seluruh bagian mulai dari identitas sampul hingga daftar pustaka telah sesuai.
+                            </p>
+                        </div>
+                        <button type="button" id="btnBuildDoc" class="btn-primary-gradient btn-generate-lg"
+                            onclick="generateDocument()">
+                            <span>Buat Dokumen Makalah</span>
+                        </button>
+                    </div>
+                </div>
+            </main>
+
+            <aside id="splitPreviewPane" class="split-preview-pane">
+                <div class="split-preview-header">
+                    <div class="split-preview-title-group">
+                        <div class="split-preview-badge-row">
+                            <span class="live-dot"></span>
+                            <span class="split-preview-kicker">Pratinjau Akademik A4</span>
+                        </div>
+                        <div id="previewModalTitle" class="split-preview-filename">Dokumen Makalah</div>
+                    </div>
+                    <div class="split-preview-actions">
+                        <button type="button" class="btn-outline-sm" onclick="triggerPrintPdf()"
+                            title="Cetak atau Ekspor PDF">Cetak / PDF</button>
+                        <button type="button" class="btn-outline-sm" onclick="refreshLivePreview()"
+                            title="Muat Ulang Pratinjau">Segarkan</button>
+                        <button type="button" class="btn-close-modal" onclick="closeSplitPreview()"
+                            title="Tutup Pratinjau">&times;</button>
+                    </div>
+                </div>
+                <div class="split-preview-body">
+                    <div id="academicPaperPreview" class="academic-paper-preview"></div>
+                </div>
+            </aside>
+        </div>
+    </div>
+
+    <div id="toastNotification" class="toast-notification hidden"></div>
+
+    <div id="loadingOverlay" class="overlay-backdrop hidden">
+        <div class="loading-box">
+            <div class="spinner-ring"></div>
+            <h3 id="loadingTitle">Memproses Dokumen Makalah...</h3>
+            <p id="loadingSubtitle">Mohon tunggu sementara sistem menyusun makalah akademik Anda.</p>
+        </div>
+    </div>
+
+    <div id="successOverlay" class="overlay-backdrop hidden">
+        <div class="loading-box success-box">
+            <div class="success-icon">✓</div>
+            <h3>Dokumen Berhasil Dibuat!</h3>
+            <p id="successFileNameLabel">Kelompok 1 Mata Kuliah</p>
+            <p style="font-size:11.5px; color:#0F766E;">Pratinjau lembar kertas A4 otomatis dibuka di sebelah kanan
+                layar Anda.
+            </p>
+            <button type="button" class="btn-primary-gradient" style="width:100%; margin-top:10px;"
+                onclick="closeSuccessOverlay()">Lihat Pratinjau</button>
+        </div>
+    </div>
+
+    <div id="introModal" class="overlay-backdrop hidden" onclick="handleIntroBackdropClick(event)">
+        <div class="modal-card intro-modal-card">
+            <div class="intro-hero-banner">
+                <img src="https://lh3.googleusercontent.com/d/1abt15uTvX-593w_xSlrRm6IGEsf7Iqnc" alt="Logo UIN KHAS"
+                    class="intro-hero-logo" onerror="this.style.display='none';">
+                <div class="intro-hero-text">
+                    <span class="intro-badge">SELAMAT DATANG</span>
+                    <h2>Studio Makalah Akademik UIN KHAS Jember</h2>
+                    <p>Platform penyusunan & otomatisasi format makalah ilmiah berstandar akademik dan Chicago Manual
+                        of Style (CMOS) Edisi ke-17.</p>
+                </div>
+            </div>
+            <div class="modal-body">
+                <div class="intro-feature-list">
+                    <div class="intro-feature-item">
+                        <div class="intro-feature-num">01</div>
+                        <div class="intro-feature-content">
+                            <h4>Penyusunan Terstruktur & Asisten AI Akademik</h4>
+                            <p>Isi materi secara bertahap (Bagian 01–07) atau aktifkan mode <strong>AI</strong> di dock
+                                kiri untuk menyusun draf makalah lengkap beserta rujukan secara otomatis.</p>
+                        </div>
+                    </div>
+                    <div class="intro-feature-item">
+                        <div class="intro-feature-num">02</div>
+                        <div class="intro-feature-content">
+                            <h4>Standar Baku CMOS Edisi ke-17 & Daftar Isi Otomatis</h4>
+                            <p>Mendukung penyisipan <em>Native Footnote</em> otomatis di kaki halaman, tabel Daftar Isi
+                                rata kanan, serta penomoran halaman Romawi (<code>i, ii</code>) dan Arab
+                                (<code>1, 2</code>).</p>
+                        </div>
+                    </div>
+                    <div class="intro-feature-item">
+                        <div class="intro-feature-num">03</div>
+                        <div class="intro-feature-content">
+                            <h4>Pratinjau Split-Screen Otomatis & Ekspor Multi-Format</h4>
+                            <p>Begitu dokumen selesai dibuat, layar otomatis terbagi dua (separuh-separuh) menampilkan
+                                pratinjau di kanan, siap diedit di Google Docs atau diunduh ke <code>.docx</code> &amp;
+                                <code>.pdf</code>.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                <div class="intro-footer-bar">
+                    <button type="button" class="btn-primary-gradient" style="width: 100%;"
+                        onclick="closeIntroModal()">Mulai Menyusun Makalah</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="downloadModal" class="overlay-backdrop hidden" onclick="handleDownloadBackdropClick(event)">
+        <div class="modal-card">
+            <div class="modal-header">
+                <div>
+                    <h3>Unduh Dokumen Makalah</h3>
+                    <p id="modalFileNameLabel">Kelompok 1 Mata Kuliah</p>
+                </div>
+                <button type="button" class="btn-close-modal" onclick="closeDownloadModal()">&times;</button>
+            </div>
+
+            <div class="modal-body">
+                <button type="button" id="btnDlDocx" class="dl-option-item" onclick="triggerDirectDownload('docx')">
+                    <div class="dl-icon docx-badge">DOCX</div>
+                    <div class="dl-text">
+                        <strong>Unduh Microsoft Word (.docx)</strong>
+                        <span>Unduh langsung file .docx ke perangkat Anda</span>
+                    </div>
+                </button>
+
+                <button type="button" id="btnDlPdf" class="dl-option-item" onclick="triggerDirectDownload('pdf')">
+                    <div class="dl-icon pdf-badge">PDF</div>
+                    <div class="dl-text">
+                        <strong>Unduh Dokumen PDF (.pdf)</strong>
+                        <span>Unduh langsung file .pdf siap cetak ke perangkat Anda</span>
+                    </div>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div id="adminModal" class="overlay-backdrop hidden" onclick="handleAdminBackdropClick(event)">
+        <div id="adminModalCard" class="modal-card">
+            <div class="modal-header">
+                <div>
+                    <h3>Admin Panel — Studio Makalah</h3>
+                    <p id="adminSubtitleLabel">Otentikasi Keamanan Administrator</p>
+                </div>
+                <button type="button" class="btn-close-modal" onclick="closeAdminModal()">&times;</button>
+            </div>
+
+            <div id="adminLoginView" class="modal-body">
+                <div class="input-block">
+                    <label>Masukkan Password Admin Panel</label>
+                    <input type="password" id="inpAdminPassword" class="form-input"
+                        placeholder="Masukkan kode akses admin..."
+                        onkeydown="if(event.key==='Enter') submitAdminLogin()">
+                </div>
+                <button type="button" id="btnAdminLogin" class="btn-primary-gradient" onclick="submitAdminLogin()">Masuk
+                    ke Admin Panel</button>
+            </div>
+
+            <div id="adminDashboardView" class="admin-body-scroll hidden">
+                <div class="admin-section-card">
+                    <div class="admin-section-head">
+                        <div>
+                            <h4>1. Konfigurasi API Key Gemini AI</h4>
+                            <span>Pilih API Key aktif dari dropdown atau tambahkan API Key baru ke dalam daftar</span>
+                        </div>
+                    </div>
+                    <div class="input-block">
+                        <label>Pilih API Key Aktif (Dropdown)</label>
+                        <div class="admin-inline-row">
+                            <select id="selAdminApiKey" class="form-input"></select>
+                            <button type="button" class="btn-remove" onclick="handleRemoveSelectedApiKey()"
+                                title="Hapus API Key terpilih dari daftar">Hapus Key</button>
+                        </div>
+                    </div>
+                    <div class="input-block">
+                        <label>Tambah API Key Baru ke Daftar Dropdown</label>
+                        <div class="admin-inline-row">
+                            <input type="text" id="inpNewApiKey" class="form-input"
+                                placeholder="Tempelkan API Key Gemini baru di sini...">
+                            <button type="button" class="btn-outline-primary" onclick="handleAddApiKey()">+ Tambah
+                                Key</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="admin-section-card">
+                    <div class="admin-section-head">
+                        <div>
+                            <h4>2. Model Gemini AI</h4>
+                            <span>Pilih model AI yang digunakan untuk menyusun draf makalah otomatis</span>
+                        </div>
+                    </div>
+                    <div class="input-block">
+                        <label>Opsi Model Gemini AI</label>
+                        <select id="selAdminGeminiModel" class="form-input">
+                            <option value="gemini-3.8-flash">Gemini 3.8 Flash</option>
+                            <option value="gemini-3.7-flash">Gemini 3.7 Flash</option>
+                            <option value="gemini-3.6-flash">Gemini 3.6 Flash</option>
+                            <option value="gemini-3.5-flash-lite">Gemini 3.5 Flash-Lite</option>
+                            <option value="gemini-3.1-flash-lite">Gemini 3.1 Flash-Lite</option>
+                            <option value="gemini-3-flash-preview">Gemini 3 Flash Preview</option>
+                            <option value="gemini-2.5-pro">Gemini 2.5 Pro</option>
+                            <option value="gemini-2.5-flash">Gemini 2.5 Flash</option>
+                            <option value="gemini-2.5-flash-lite">Gemini 2.5 Flash-Lite</option>
+                            <option value="gemini-2.5-flash-preview-tts">Gemini 2.5 Flash Preview TTS</option>
+                            <option value="gemini-2.5-pro-preview-tts">Gemini 2.5 Pro Preview TTS</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="admin-section-card">
+                    <div class="admin-section-head">
+                        <div>
+                            <h4>3. ID Dokumen Template Google Docs</h4>
+                            <span>Masukkan ID atau URL dokumen Google Docs template makalah</span>
+                        </div>
+                    </div>
+                    <div class="input-block">
+                        <label>Template ID / URL Google Docs</label>
+                        <input type="text" id="inpAdminTemplateId" class="form-input"
+                            placeholder="Contoh: 1qRFHkEJK-idMC7i5UyZgI7-ZylCXF13_ITStCwku3y0">
+                    </div>
+                </div>
+
+                <div style="display:flex; justify-content:flex-end;">
+                    <button type="button" id="btnSaveAdminConfig" class="btn-primary-gradient"
+                        onclick="saveAdminSettings()">Simpan Konfigurasi Admin</button>
+                </div>
+
+                <div class="admin-section-card">
+                    <div class="admin-section-head">
+                        <div>
+                            <h4>4. Daftar Seluruh File Makalah</h4>
+                            <span>Kelola dan hapus file makalah yang telah di-generate</span>
+                        </div>
+                        <button type="button" class="btn-outline-sm" onclick="refreshAdminFilesList()">Segarkan
+                            Daftar</button>
+                    </div>
+                    <div class="admin-files-table-wrap">
+                        <table class="admin-files-table">
+                            <thead>
+                                <tr>
+                                    <th>Nama File Makalah</th>
+                                    <th>Waktu Dibuat</th>
+                                    <th style="text-align:right;">Aksi</th>
+                                </tr>
+                            </thead>
+                            <tbody id="adminFilesTableBody">
+                                <tr>
+                                    <td colspan="3" style="text-align:center; color:#94A3B8;">Memuat daftar file...</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    <script src="/script.js"></script>
+</body>
+
+</html>
