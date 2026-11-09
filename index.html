@@ -646,8 +646,8 @@ Makalah ini disusun untuk memenuhi tugas akademik sekaligus menambah wawasan kei
                     <div class="intro-feature-item">
                         <div class="intro-feature-num">03</div>
                         <div class="intro-feature-content">
-                            <h4>Pratinjau Kertas A4 & Ekspor Multi-Format (.docx / .pdf)</h4>
-                            <p>Dokumen yang selesai dibuat langsung ditampilkan dalam pratinjau lembar A4 dan siap diunduh ke format Microsoft Word (<code>.docx</code>) maupun cetak PDF (<code>.pdf</code>).</p>
+                            <h4>Berbasis Template Word (.docx) & Cetak PDF (.pdf)</h4>
+                            <p>Dokumen langsung diisi ke dalam file <code>template.docx</code> serta ditampilkan dalam pratinjau kertas A4 siap unduh ke <code>.docx</code> maupun <code>.pdf</code>.</p>
                         </div>
                     </div>
                 </div>
@@ -673,7 +673,7 @@ Makalah ini disusun untuk memenuhi tugas akademik sekaligus menambah wawasan kei
                     <div class="dl-icon docx-badge">DOCX</div>
                     <div class="dl-text">
                         <strong>Unduh Microsoft Word (.docx)</strong>
-                        <span>Unduh langsung file .docx ke perangkat Anda</span>
+                        <span>Unduh langsung file .docx dari template.docx</span>
                     </div>
                 </button>
                 <button type="button" id="btnDlPdf" class="dl-option-item" onclick="triggerDirectDownload('pdf')">
@@ -758,20 +758,6 @@ Makalah ini disusun untuk memenuhi tugas akademik sekaligus menambah wawasan kei
                     </div>
                 </div>
 
-                <div class="admin-section-card">
-                    <div class="admin-section-head">
-                        <div>
-                            <h4>3. ID Dokumen Template Google Docs</h4>
-                            <span>Masukkan ID atau URL dokumen Google Docs template makalah</span>
-                        </div>
-                    </div>
-                    <div class="input-block">
-                        <label>Template ID / URL Google Docs</label>
-                        <input type="text" id="inpAdminTemplateId" class="form-input"
-                            placeholder="Contoh: 1qRFHkEJK-idMC7i5UyZgI7-ZylCXF13_ITStCwku3y0">
-                    </div>
-                </div>
-
                 <div style="display:flex; justify-content:flex-end;">
                     <button type="button" id="btnSaveAdminConfig" class="btn-primary-gradient"
                         onclick="saveAdminSettings()">Simpan Konfigurasi Admin</button>
@@ -780,8 +766,8 @@ Makalah ini disusun untuk memenuhi tugas akademik sekaligus menambah wawasan kei
                 <div class="admin-section-card">
                     <div class="admin-section-head">
                         <div>
-                            <h4>4. Daftar Seluruh File Makalah</h4>
-                            <span>Kelola dan hapus file makalah yang telah di-generate</span>
+                            <h4>3. Daftar Seluruh File Makalah</h4>
+                            <span>Kelola dan hapus riwayat file makalah yang telah di-generate</span>
                         </div>
                         <button type="button" class="btn-outline-sm" onclick="refreshAdminFilesList()">Segarkan Daftar</button>
                     </div>
