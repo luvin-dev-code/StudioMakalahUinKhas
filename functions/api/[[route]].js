@@ -1,4 +1,3 @@
-const DEFAULT_TEMPLATE_DOC_ID = '1qRFHkEJK-idMC7i5UyZgI7-ZylCXF13_ITStCwku3y0';
 const DEFAULT_AI_API_KEY = 'AQ.Ab8RN6KNqySP0HSaTRE8Zld0jnjwFR_6gclhTc9Zyy6EMK622w';
 const ADMIN_PASSWORD = '010506';
 
@@ -19,7 +18,6 @@ const GEMINI_MODEL_OPTIONS = [
 const memStore = {
     ADMIN_API_KEYS: JSON.stringify([DEFAULT_AI_API_KEY]),
     ADMIN_ACTIVE_API_KEY: DEFAULT_AI_API_KEY,
-    ADMIN_TEMPLATE_DOC_ID: DEFAULT_TEMPLATE_DOC_ID,
     ADMIN_GEMINI_MODEL: 'gemini-2.5-flash',
     ADMIN_MAKALAH_FILES: '[]'
 };
@@ -62,12 +60,10 @@ async function getSystemConfig(env) {
         activeApiKey = apiKeys[0] || DEFAULT_AI_API_KEY;
         await putStorage(env, 'ADMIN_ACTIVE_API_KEY', activeApiKey);
     }
-    const templateDocId = (await getStorage(env, 'ADMIN_TEMPLATE_DOC_ID')) || DEFAULT_TEMPLATE_DOC_ID;
     const activeModel = (await getStorage(env, 'ADMIN_GEMINI_MODEL')) || 'gemini-2.5-flash';
     return {
         apiKeys,
         activeApiKey,
-        templateDocId,
         activeModel,
         modelOptions: GEMINI_MODEL_OPTIONS
     };
@@ -297,9 +293,6 @@ export async function onRequest(context) {
                     currentList.push(activeKey);
                     await putStorage(env, 'ADMIN_API_KEYS', JSON.stringify(currentList));
                 }
-            }
-            if (newConfig.templateDocId) {
-                await putStorage(env, 'ADMIN_TEMPLATE_DOC_ID', String(newConfig.templateDocId).trim());
             }
             if (newConfig.activeModel) {
                 await putStorage(env, 'ADMIN_GEMINI_MODEL', String(newConfig.activeModel).trim());
