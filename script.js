@@ -248,7 +248,7 @@ function openAdminModal() {
     card.classList.add('admin-modal-card');
     document.getElementById('adminLoginView').classList.add('hidden');
     document.getElementById('adminDashboardView').classList.remove('hidden');
-    document.getElementById('adminSubtitleLabel').textContent = 'Manajemen Konfigurasi AI, Template & File Makalah';
+    document.getElementById('adminSubtitleLabel').textContent = 'Manajemen Konfigurasi AI & Riwayat File Makalah';
     loadAdminDashboardData(appState.adminPassword);
   } else {
     card.classList.remove('admin-modal-card');
@@ -299,7 +299,7 @@ async function submitAdminLogin() {
     card.classList.add('admin-modal-card');
     document.getElementById('adminLoginView').classList.add('hidden');
     document.getElementById('adminDashboardView').classList.remove('hidden');
-    document.getElementById('adminSubtitleLabel').textContent = 'Manajemen Konfigurasi AI, Template & File Makalah';
+    document.getElementById('adminSubtitleLabel').textContent = 'Manajemen Konfigurasi AI & Riwayat File Makalah';
 
     populateAdminConfigUI(data.config);
     renderAdminFilesTable(data.files || []);
@@ -356,11 +356,6 @@ function populateAdminConfigUI(config) {
       selModel.selectedIndex = 0;
     }
   }
-
-  const inpTpl = document.getElementById('inpAdminTemplateId');
-  if (config.templateDocId) {
-    inpTpl.value = config.templateDocId;
-  }
 }
 
 async function handleAddApiKey() {
@@ -412,12 +407,6 @@ async function handleRemoveSelectedApiKey() {
 async function saveAdminSettings() {
   const activeApiKey = document.getElementById('selAdminApiKey').value;
   const activeModel = document.getElementById('selAdminGeminiModel').value;
-  const templateDocId = document.getElementById('inpAdminTemplateId').value.trim();
-
-  if (!templateDocId) {
-    showToast('Template ID tidak boleh kosong.');
-    return;
-  }
 
   const btn = document.getElementById('btnSaveAdminConfig');
   btn.disabled = true;
@@ -432,8 +421,7 @@ async function saveAdminSettings() {
         newConfig: {
           apiKeys: appState.adminApiKeys,
           activeApiKey: activeApiKey,
-          activeModel: activeModel,
-          templateDocId: templateDocId
+          activeModel: activeModel
         }
       })
     });
@@ -1437,7 +1425,7 @@ async function generateDocument() {
   const btn = document.getElementById('btnBuildDoc');
   btn.disabled = true;
   updateStatusBanner('Memproses dokumen...', 'warn');
-  showCenterLoading('Memproses Dokumen Makalah...', 'Mengisi Template Makalah UIN KHAS Jember, menyusun Tabel Daftar Isi, dan menyematkan Native Footnote.');
+  showCenterLoading('Memproses Dokumen Makalah...', 'Menyusun tata letak makalah UIN KHAS Jember, Tabel Daftar Isi, dan Native Footnote.');
 
   try {
     const res = await fetch('/api/makalah/build', {
@@ -1541,7 +1529,7 @@ async function generateAndDownloadDocx() {
     return;
   }
 
-  showCenterLoading('Menyusun Dokumen Word (.docx)...', 'Mengisi Template Makalah.docx beserta Logo, Tabel Anggota, Daftar Isi, dan Native Footnote.');
+  showCenterLoading('Menyusun Dokumen Word (.docx)...', 'Mengisi file template.docx beserta Logo, Tabel Anggota, Daftar Isi, dan Native Footnote.');
 
   try {
     const data = gatherFormData();
@@ -1550,7 +1538,7 @@ async function generateAndDownloadDocx() {
 
     const tplResponse = await fetch('/template.docx');
     if (!tplResponse.ok) {
-      throw new Error('File /template.docx belum ditemukan di server. Pastikan file template.docx sudah diunggah.');
+      throw new Error('File /template.docx belum ditemukan di repositori. Pastikan file template.docx sudah diunggah.');
     }
     const tplBuffer = await tplResponse.arrayBuffer();
     const zip = await JSZip.loadAsync(tplBuffer);
