@@ -988,7 +988,7 @@ async function generateDocument() {
   const btn = document.getElementById('btnBuildDoc');
   btn.disabled = true;
   updateStatusBanner('Memproses dokumen...', 'warn');
-  showCenterLoading('Memproses Dokumen Makalah...', 'Menyusun naskah akademik berstandar UIN KHAS Jember, tabel Daftar Isi, dan catatan kaki.');
+  showCenterLoading('Memproses Dokumen Makalah...', 'Mengisi Template Makalah V3 UIN KHAS Jember, menyusun Tabel Daftar Isi, dan menyematkan Native Footnote.');
 
   try {
     const res = await fetch('/api/makalah/build', {
@@ -1042,7 +1042,7 @@ function parseTextWithFootnotes(rawText, fnGlobalList) {
       const fnText = seg.slice(2, -1).trim();
       fnGlobalList.push(fnText);
       const fnNum = fnGlobalList.length;
-      html += `<sup class="a4-footnote-ref">[${fnNum}]</sup>`;
+      html += `<sup class="a4-footnote-ref">${fnNum}</sup>`;
     } else {
       html += escapeHtml(seg);
     }
@@ -1065,38 +1065,39 @@ function renderLiveA4Preview(data) {
   const fnList = [];
   const pages = [];
 
-  const authorsHtml = (data.penulis || []).map((p, idx) => `
-    <div><strong>${escapeHtml(p.nama || 'Nama Mahasiswa')}</strong> (NIM: ${escapeHtml(p.nim || '-')})</div>
+  const authorsTableRows = (data.penulis || []).map(p => `
+    <tr>
+      <td style="width:45%; text-align:center; padding:2px 4px;">${escapeHtml(p.nama || '')}</td>
+      <td style="width:10%; text-align:center;"></td>
+      <td style="width:45%; text-align:left; padding:2px 4px;">${escapeHtml(p.nim || '')}</td>
+    </tr>
   `).join('');
 
   const coverHtml = `
     <div class="a4-page">
       <div class="a4-header"></div>
       <div class="a4-body a4-cover-wrap">
-        <div>
-          <div class="a4-cover-title">${escapeHtml(data.judul || 'JUDUL MAKALAH AKADEMIK')}</div>
-          <div class="a4-cover-label">MAKALAH</div>
+        <div style="margin-top:4mm;">
+          <div style="font-weight:700; font-size:14pt; line-height:1.5;">MAKALAH</div>
+          <div style="font-weight:700; font-size:14pt; line-height:1.5;">${escapeHtml(data.judul || 'Judul Makalah')}</div>
+          <div style="font-size:12pt; line-height:1.5; margin-top:4px;">Disususn Untuk Memenuhi Tugas Mata Kuliah ${escapeHtml(data.mataKuliah || '')}</div>
+          <div style="font-size:12pt; line-height:1.5;">Dosen pengampu : ${escapeHtml(data.dosen || '')}</div>
         </div>
-        <div>
-          <img src="https://lh3.googleusercontent.com/d/1abt15uTvX-593w_xSlrRm6IGEsf7Iqnc" alt="Logo UIN KHAS" class="a4-cover-logo" onerror="this.style.display='none'">
+        <div style="margin:10mm 0;">
+          <img src="https://lh3.googleusercontent.com/d/1abt15uTvX-593w_xSlrRm6IGEsf7Iqnc" alt="Logo UIN KHAS" style="width:6.7cm; height:6.7cm; object-fit:contain;" onerror="this.style.display='none'">
         </div>
-        <div>
-          <div class="a4-cover-meta">
-            <div>Diajukan untuk Memenuhi Tugas Mata Kuliah:</div>
-            <div><strong>${escapeHtml(data.mataKuliah || 'Mata Kuliah')}</strong></div>
-            <div style="margin-top:6px;">Dosen Pengampu:</div>
-            <div><strong>${escapeHtml(data.dosen || 'Nama Dosen Pengampu')}</strong></div>
-          </div>
-          <div class="a4-cover-authors">
-            <div style="margin-bottom:4px;">Disusun Oleh: <strong>${escapeHtml(data.kelompok || 'Kelompok')}</strong></div>
-            ${authorsHtml}
-          </div>
+        <div style="width:100%;">
+          <div style="font-weight:700; font-size:12pt; margin-bottom:6px;">Oleh ${escapeHtml(data.kelompok || 'Kelompok 1')} :</div>
+          <table style="width:100%; border-collapse:collapse; font-size:12pt; margin-bottom:10mm;">
+            ${authorsTableRows}
+          </table>
         </div>
-        <div class="a4-cover-bottom">
-          <div>PROGRAM STUDI ${escapeHtml(data.prodi || 'PROGRAM STUDI')}</div>
-          <div>FAKULTAS ${escapeHtml(data.fakultas || 'FAKULTAS')}</div>
-          <div>UNIVERSITAS ISLAM NEGERI KIAI HAJI ACHMAD SIDDIQ JEMBER</div>
-          <div>${escapeHtml(data.bulanTahun || '2026')}</div>
+        <div style="font-weight:700; font-size:12pt; line-height:1.5; text-transform:uppercase;">
+          <div>PROGRAM STUDI ${escapeHtml(data.prodi || '')}</div>
+          <div>FAKULTAS ${escapeHtml(data.fakultas || '')}</div>
+          <div style="height:12pt;"></div>
+          <div>UNIVERSITAS ISLAM NEGERI KIAI HAJI ACHMAD SIDDIQ</div>
+          <div>${escapeHtml(data.kota || 'JEMBER')} ${escapeHtml(data.bulanTahun || 'NOVEMBER 2026')}</div>
         </div>
       </div>
       <div class="a4-footer"></div>
@@ -1110,7 +1111,7 @@ function renderLiveA4Preview(data) {
     <div class="a4-page">
       <div class="a4-header"></div>
       <div class="a4-body">
-        <div class="a4-heading-1">KATA PENGANTAR</div>
+        <div class="a4-heading-1" style="font-size:14pt;">KATA PENGANTAR</div>
         ${pengantarBody}
       </div>
       <div class="a4-footer">i</div>
@@ -1159,7 +1160,7 @@ function renderLiveA4Preview(data) {
     <div class="a4-page">
       <div class="a4-header"></div>
       <div class="a4-body">
-        <div class="a4-heading-1">DAFTAR ISI</div>
+        <div class="a4-heading-1" style="font-size:14pt;">DAFTAR ISI</div>
         <table class="a4-toc-table">
           ${tocTableRowsHtml}
         </table>
@@ -1169,18 +1170,19 @@ function renderLiveA4Preview(data) {
   `;
   pages.push(tocHtml);
 
-  const bab1FnList = [];
+  const bab1FnStart = fnList.length;
   const latarLines = (data.latarBelakang || '').split('\n').map(l => l.trim()).filter(l => l !== '');
-  const latarBody = latarLines.map(l => parseTextWithFootnotes(l, bab1FnList)).join('');
+  const latarBody = latarLines.map(l => parseTextWithFootnotes(l, fnList)).join('');
+  const bab1FnSlice = fnList.slice(bab1FnStart);
 
   const rumusanListHtml = (data.rumusanMasalah || []).map((r, idx) => `
-    <div class="a4-p" style="text-indent:0; padding-left:1.27cm;">${idx + 1}. ${escapeHtml(r)}</div>
+    <div class="a4-p" style="text-indent:0; padding-left:0.63cm;">${idx + 1}. ${escapeHtml(r)}</div>
   `).join('');
 
   let tujuanHtml = '';
   if (data.useTujuan && data.tujuanPenulisan && data.tujuanPenulisan.length > 0) {
     const tujuanList = data.tujuanPenulisan.map((t, idx) => `
-      <div class="a4-p" style="text-indent:0; padding-left:1.27cm;">${idx + 1}. ${escapeHtml(t)}</div>
+      <div class="a4-p" style="text-indent:0; padding-left:0.63cm;">${idx + 1}. ${escapeHtml(t)}</div>
     `).join('');
     tujuanHtml = `
       <div class="a4-heading-2">C. Tujuan Penulisan</div>
@@ -1188,21 +1190,21 @@ function renderLiveA4Preview(data) {
     `;
   }
 
-  const bab1FnItemsHtml = bab1FnList.map((fn, idx) => `
-    <div class="a4-footnote-item"><sup>[${idx + 1}]</sup> ${escapeHtml(fn)}</div>
+  const bab1FnItemsHtml = bab1FnSlice.map((fn, idx) => `
+    <div class="a4-footnote-item"><sup class="a4-footnote-ref">${bab1FnStart + idx + 1}</sup> ${escapeHtml(fn)}</div>
   `).join('');
 
   const bab1Html = `
     <div class="a4-page">
       <div class="a4-header"></div>
       <div class="a4-body">
-        <div class="a4-heading-1">BAB I<br>PENDAHULUAN</div>
+        <div class="a4-heading-1" style="font-size:14pt;">BAB I<br>PENDAHULUAN</div>
         <div class="a4-heading-2">A. Latar Belakang</div>
         ${latarBody}
         <div class="a4-heading-2">B. Rumusan Masalah</div>
         ${rumusanListHtml}
         ${tujuanHtml}
-        ${bab1FnList.length > 0 ? `
+        ${bab1FnSlice.length > 0 ? `
           <div class="a4-footnote-container">
             <div class="a4-footnote-line"></div>
             ${bab1FnItemsHtml}
@@ -1214,35 +1216,36 @@ function renderLiveA4Preview(data) {
   `;
   pages.push(bab1Html);
 
-  const bab2FnList = [];
+  const bab2FnStart = fnList.length;
   let bab2BodyHtml = '';
   (data.pembahasan || []).forEach((sub, sIdx) => {
     const letter = letters[sIdx] || String(sIdx + 1);
     bab2BodyHtml += `<div class="a4-heading-2">${letter}. ${escapeHtml(sub.judulSub || 'Sub-bab')}</div>`;
     if (sub.isiSub && sub.isiSub.trim()) {
       const subLines = sub.isiSub.split('\n').map(l => l.trim()).filter(l => l !== '');
-      bab2BodyHtml += subLines.map(l => parseTextWithFootnotes(l, bab2FnList)).join('');
+      bab2BodyHtml += subLines.map(l => parseTextWithFootnotes(l, fnList)).join('');
     }
     (sub.subPoin || []).forEach((pt, pIdx) => {
       bab2BodyHtml += `<div class="a4-heading-3">${pIdx + 1}. ${escapeHtml(pt.judulPoin || 'Anak Sub-bab')}</div>`;
       if (pt.isiPoin && pt.isiPoin.trim()) {
         const ptLines = pt.isiPoin.split('\n').map(l => l.trim()).filter(l => l !== '');
-        bab2BodyHtml += ptLines.map(l => parseTextWithFootnotes(l, bab2FnList)).join('');
+        bab2BodyHtml += ptLines.map(l => parseTextWithFootnotes(l, fnList)).join('');
       }
     });
   });
+  const bab2FnSlice = fnList.slice(bab2FnStart);
 
-  const bab2FnItemsHtml = bab2FnList.map((fn, idx) => `
-    <div class="a4-footnote-item"><sup>[${idx + 1}]</sup> ${escapeHtml(fn)}</div>
+  const bab2FnItemsHtml = bab2FnSlice.map((fn, idx) => `
+    <div class="a4-footnote-item"><sup class="a4-footnote-ref">${bab2FnStart + idx + 1}</sup> ${escapeHtml(fn)}</div>
   `).join('');
 
   const bab2Html = `
     <div class="a4-page">
       <div class="a4-header"></div>
       <div class="a4-body">
-        <div class="a4-heading-1">BAB II<br>PEMBAHASAN</div>
+        <div class="a4-heading-1" style="font-size:14pt;">BAB II<br>PEMBAHASAN</div>
         ${bab2BodyHtml}
-        ${bab2FnList.length > 0 ? `
+        ${bab2FnSlice.length > 0 ? `
           <div class="a4-footnote-container">
             <div class="a4-footnote-line"></div>
             ${bab2FnItemsHtml}
@@ -1254,14 +1257,13 @@ function renderLiveA4Preview(data) {
   `;
   pages.push(bab2Html);
 
-  const bab3FnList = [];
   const kesimpulanLines = (data.kesimpulan || '').split('\n').map(l => l.trim()).filter(l => l !== '');
-  const kesimpulanBody = kesimpulanLines.map(l => parseTextWithFootnotes(l, bab3FnList)).join('');
+  const kesimpulanBody = kesimpulanLines.map(l => parseTextWithFootnotes(l, fnList)).join('');
 
   let saranHtml = '';
   if (data.useSaran && data.saran && data.saran.trim()) {
     const saranLines = data.saran.split('\n').map(l => l.trim()).filter(l => l !== '');
-    const saranBody = saranLines.map(l => parseTextWithFootnotes(l, bab3FnList)).join('');
+    const saranBody = saranLines.map(l => parseTextWithFootnotes(l, fnList)).join('');
     saranHtml = `
       <div class="a4-heading-2">B. Saran</div>
       ${saranBody}
@@ -1272,7 +1274,7 @@ function renderLiveA4Preview(data) {
     <div class="a4-page">
       <div class="a4-header"></div>
       <div class="a4-body">
-        <div class="a4-heading-1">BAB III<br>PENUTUP</div>
+        <div class="a4-heading-1" style="font-size:14pt;">BAB III<br>PENUTUP</div>
         <div class="a4-heading-2">A. Kesimpulan</div>
         ${kesimpulanBody}
         ${saranHtml}
@@ -1295,7 +1297,7 @@ function renderLiveA4Preview(data) {
     <div class="a4-page">
       <div class="a4-header"></div>
       <div class="a4-body">
-        <div class="a4-heading-1">DAFTAR PUSTAKA</div>
+        <div class="a4-heading-1" style="font-size:14pt;">DAFTAR PUSTAKA</div>
         ${bibEntriesHtml}
       </div>
       <div class="a4-footer">4</div>
@@ -1331,65 +1333,321 @@ function triggerDirectDownload(format) {
   generateAndDownloadDocx();
 }
 
+function buildTocLeaderLineDocx(title, level) {
+  const isLvl1 = level === 1;
+  const leftIndent = level === 1 ? 0 : (level === 2 ? 18 : 36);
+  const baseColWidth = 356;
+  const targetWidthPt = Math.max(140, baseColWidth - leftIndent - 34);
+  const cleanTitle = String(title || '').replace(/[\r\n]+/g, ' ').replace(/\s+/g, ' ').trim();
+  let total = 0;
+  for (let i = 0; i < cleanTitle.length; i++) {
+    const ch = cleanTitle.charAt(i);
+    if ('MW'.indexOf(ch) !== -1) total += isLvl1 ? 11.0 : 9.8;
+    else if ('mw'.indexOf(ch) !== -1) total += isLvl1 ? 9.4 : 8.4;
+    else if (ch >= 'A' && ch <= 'Z') total += isLvl1 ? 8.5 : 7.6;
+    else if ('Iiltjfr1.,:;\'()[]!| '.indexOf(ch) !== -1) total += isLvl1 ? 3.9 : 3.4;
+    else total += isLvl1 ? 6.2 : 5.6;
+  }
+  const dotWidthPt = isLvl1 ? 3.3 : 3.05;
+  let effectiveTitleWidth = total;
+  if (total > targetWidthPt - 18) {
+    effectiveTitleWidth = total % targetWidthPt;
+    if (effectiveTitleWidth > targetWidthPt - 18) {
+      effectiveTitleWidth = targetWidthPt - 22;
+    }
+  }
+  const remainingPt = Math.max(12, targetWidthPt - effectiveTitleWidth);
+  const dotCount = Math.max(4, Math.floor(remainingPt / dotWidthPt));
+  return cleanTitle + '\u00A0' + '.'.repeat(dotCount);
+}
+
 async function generateAndDownloadDocx() {
   if (typeof JSZip === 'undefined') {
     alert('Library JSZip belum termuat. Pastikan terhubung ke internet.');
     return;
   }
 
-  showCenterLoading('Menyusun Dokumen Word (.docx)...', 'Membuat berkas OpenXML berstandar akademik UIN KHAS Jember.');
+  showCenterLoading('Menyusun Dokumen Word (.docx)...', 'Mengisi Template Makalah V3.docx asli Anda beserta Logo, Tabel Anggota, Daftar Isi, dan Native Footnote.');
 
   try {
     const data = gatherFormData();
     const safeName = (data.kelompok + ' ' + data.mataKuliah).trim().replace(/[\\/:*?"<>|]/g, '_') || 'Makalah_Akademik';
-    const zip = new JSZip();
 
-    zip.file('[Content_Types].xml', `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types">
-  <Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/>
-  <Default Extension="xml" ContentType="application/xml"/>
-  <Override PartName="/word/document.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.document.main+xml"/>
-  <Override PartName="/word/styles.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.styles+xml"/>
-  <Override PartName="/word/footnotes.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.footnotes+xml"/>
-  <Override PartName="/word/footer1.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.footer+xml"/>
-  <Override PartName="/word/footer2.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.footer+xml"/>
-  <Override PartName="/word/header1.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.header+xml"/>
-</Types>`);
+    const tplResponse = await fetch('/template.docx');
+    if (!tplResponse.ok) {
+      throw new Error('File /template.docx belum ditemukan di server. Pastikan file template.docx sudah diunggah ke GitHub.');
+    }
+    const tplBuffer = await tplResponse.arrayBuffer();
+    const zip = await JSZip.loadAsync(tplBuffer);
 
-    zip.file('_rels/.rels', `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">
-  <Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="word/document.xml"/>
-</Relationships>`);
+    let docXml = await zip.file('word/document.xml').async('string');
 
-    zip.file('word/_rels/document.xml.rels', `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">
-  <Relationship Id="rIdStyles" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles" Target="styles.xml"/>
-  <Relationship Id="rIdFootnotes" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/footnotes" Target="footnotes.xml"/>
-  <Relationship Id="rIdFooter1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/footer" Target="footer1.xml"/>
-  <Relationship Id="rIdFooter2" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/footer" Target="footer2.xml"/>
-  <Relationship Id="rIdHeader1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/header" Target="header1.xml"/>
-</Relationships>`);
+    let footnoteIdCounter = 1;
+    const footnoteEntries = [];
 
-    zip.file('word/styles.xml', `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<w:styles xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main">
-  <w:docDefaults>
-    <w:rPrDefault>
-      <w:rPr>
-        <w:rFonts w:ascii="Times New Roman" w:hAnsi="Times New Roman" w:cs="Traditional Arabic"/>
-        <w:sz w:val="24"/>
-        <w:szCs w:val="32"/>
-        <w:lang w:val="id-ID"/>
-      </w:rPr>
-    </w:rPrDefault>
-    <w:pPrDefault>
-      <w:pPr>
-        <w:spacing w:line="360" w:lineRule="auto"/>
-      </w:pPr>
-    </w:pPrDefault>
-  </w:docDefaults>
-</w:styles>`);
+    function createFormattedParagraphXml(rawLine, baseIndentPt) {
+      let isBlockquote = false;
+      let cleanLine = rawLine || '';
+      if (cleanLine.startsWith('[BLOCKQUOTE]')) {
+        isBlockquote = true;
+        cleanLine = cleanLine.replace('[BLOCKQUOTE]', '').trim();
+      }
+      const mostlyArabic = isArabicText(cleanLine) && cleanLine.replace(/[\u0600-\u06FF\s]/g, '').length < cleanLine.length * 0.3;
+      const baseTwips = Math.round((baseIndentPt || 0) * 20);
 
-    zip.file('word/footer1.xml', `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+      let pPr = '';
+      if (mostlyArabic) {
+        pPr = `<w:pPr><w:bidi/><w:spacing w:before="120" w:after="120" w:line="240" w:lineRule="auto"/><w:ind w:left="${baseTwips}" w:firstLine="0"/><w:jc w:val="right"/></w:pPr>`;
+      } else if (isBlockquote) {
+        pPr = `<w:pPr><w:spacing w:before="120" w:after="120" w:line="240" w:lineRule="auto"/><w:ind w:left="${baseTwips + 720}" w:firstLine="0"/><w:jc w:val="both"/></w:pPr>`;
+      } else {
+        pPr = `<w:pPr><w:spacing w:before="0" w:after="80" w:line="360" w:lineRule="auto"/><w:ind w:left="${baseTwips}" w:firstLine="720"/><w:jc w:val="both"/></w:pPr>`;
+      }
+
+      const segments = cleanLine.split(/(\^\[[^\]]+\])/g);
+      let runsXml = '';
+      segments.forEach(seg => {
+        if (!seg) return;
+        if (seg.startsWith('^[') && seg.endsWith(']')) {
+          const fnText = seg.slice(2, -1).trim();
+          const curId = footnoteIdCounter++;
+          footnoteEntries.push({ id: curId, text: fnText });
+          runsXml += `<w:r><w:rPr><w:rFonts w:ascii="Times New Roman" w:hAnsi="Times New Roman"/><w:vertAlign w:val="superscript"/><w:sz w:val="24"/><w:szCs w:val="24"/></w:rPr><w:footnoteReference w:id="${curId}"/></w:r>`;
+        } else {
+          if (mostlyArabic) {
+            runsXml += `<w:r><w:rPr><w:rFonts w:ascii="Traditional Arabic" w:hAnsi="Traditional Arabic" w:cs="Traditional Arabic"/><w:sz w:val="32"/><w:szCs w:val="32"/><w:rtl/></w:rPr><w:t xml:space="preserve">${escapeXml(seg)}</w:t></w:r>`;
+          } else {
+            runsXml += `<w:r><w:rPr><w:rFonts w:ascii="Times New Roman" w:hAnsi="Times New Roman" w:cs="Times New Roman"/><w:sz w:val="24"/><w:szCs w:val="24"/></w:rPr><w:t xml:space="preserve">${escapeXml(seg)}</w:t></w:r>`;
+          }
+        }
+      });
+
+      return `<w:p>${pPr}${runsXml}</w:p>`;
+    }
+
+    function buildParagraphsBlockXml(rawText, baseIndentPt) {
+      const lines = (rawText || '').split('\n').map(l => l.trim()).filter(l => l !== '');
+      if (lines.length === 0) return '<w:p/>';
+      return lines.map(line => createFormattedParagraphXml(line, baseIndentPt)).join('');
+    }
+
+    function buildListBlockXml(items, numbered) {
+      const valid = (items || []).map(i => i.trim()).filter(i => i !== '');
+      if (valid.length === 0) return '<w:p/>';
+      return valid.map((item, idx) => {
+        const prefix = numbered ? (idx + 1) + '. ' : '';
+        const indXml = numbered ? '<w:ind w:left="360" w:hanging="360"/>' : '<w:ind w:left="0" w:firstLine="0"/>';
+        return `<w:p><w:pPr><w:spacing w:before="0" w:after="80" w:line="360" w:lineRule="auto"/>${indXml}<w:jc w:val="both"/></w:pPr><w:r><w:rPr><w:rFonts w:ascii="Times New Roman" w:hAnsi="Times New Roman"/><w:sz w:val="24"/><w:szCs w:val="24"/></w:rPr><w:t xml:space="preserve">${escapeXml(prefix + item)}</w:t></w:r></w:p>`;
+      }).join('');
+    }
+
+    function buildBab2BlockXml(pembahasanList) {
+      const letters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+      let out = '';
+      (pembahasanList || []).forEach((sub, sIdx) => {
+        const letter = letters[sIdx] || String(sIdx + 1);
+        const h2Title = letter + '. ' + (sub.judulSub || 'Sub-Bab');
+        out += `<w:p><w:pPr><w:spacing w:before="200" w:after="80" w:line="360" w:lineRule="auto"/><w:ind w:left="0" w:firstLine="0"/><w:jc w:val="left"/></w:pPr><w:r><w:rPr><w:rFonts w:ascii="Times New Roman" w:hAnsi="Times New Roman"/><w:b/><w:bCs/><w:sz w:val="24"/><w:szCs w:val="24"/></w:rPr><w:t xml:space="preserve">${escapeXml(h2Title)}</w:t></w:r></w:p>`;
+        if (sub.isiSub && sub.isiSub.trim() !== '') {
+          out += buildParagraphsBlockXml(sub.isiSub, 0);
+        }
+        (sub.subPoin || []).forEach((poin, pIdx) => {
+          const h3Title = (pIdx + 1) + '. ' + (poin.judulPoin || 'Anak Sub-Bab');
+          out += `<w:p><w:pPr><w:spacing w:before="120" w:after="80" w:line="360" w:lineRule="auto"/><w:ind w:left="360" w:firstLine="0"/><w:jc w:val="left"/></w:pPr><w:r><w:rPr><w:rFonts w:ascii="Times New Roman" w:hAnsi="Times New Roman"/><w:b/><w:bCs/><w:sz w:val="24"/><w:szCs w:val="24"/></w:rPr><w:t xml:space="preserve">${escapeXml(h3Title)}</w:t></w:r></w:p>`;
+          if (poin.isiPoin && poin.isiPoin.trim() !== '') {
+            out += buildParagraphsBlockXml(poin.isiPoin, 18);
+          }
+        });
+      });
+      return out || '<w:p/>';
+    }
+
+    function buildBibliographyBlockXml(bibList) {
+      const sorted = (bibList || []).map(b => b.trim()).filter(b => b !== '').sort((a, b) => a.localeCompare(b, 'id'));
+      if (sorted.length === 0) return '<w:p/>';
+      return sorted.map(entry => {
+        return `<w:p><w:pPr><w:spacing w:before="240" w:after="0" w:line="240" w:lineRule="auto"/><w:ind w:left="720" w:hanging="720"/><w:jc w:val="both"/></w:pPr><w:r><w:rPr><w:rFonts w:ascii="Times New Roman" w:hAnsi="Times New Roman"/><w:sz w:val="24"/><w:szCs w:val="24"/></w:rPr><w:t xml:space="preserve">${escapeXml(entry)}</w:t></w:r></w:p>`;
+      }).join('');
+    }
+
+    function buildTocTableXml(formData) {
+      const tocEntries = [];
+      tocEntries.push({ title: 'KATA PENGANTAR', page: 'i', level: 1 });
+      tocEntries.push({ title: 'DAFTAR ISI', page: 'ii', level: 1 });
+      tocEntries.push({ title: 'BAB I PENDAHULUAN', page: '1', level: 1 });
+      tocEntries.push({ title: 'A. Latar Belakang', page: '1', level: 2 });
+      tocEntries.push({ title: 'B. Rumusan Masalah', page: '2', level: 2 });
+      if (formData.useTujuan) {
+        tocEntries.push({ title: 'C. Tujuan Penulisan', page: '2', level: 2 });
+      }
+      tocEntries.push({ title: 'BAB II PEMBAHASAN', page: '3', level: 1 });
+      const letters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+      let pg = 3;
+      (formData.pembahasan || []).forEach((sub, sIdx) => {
+        const letter = letters[sIdx] || String(sIdx + 1);
+        tocEntries.push({ title: letter + '. ' + (sub.judulSub || 'Sub-bab'), page: String(pg), level: 2 });
+        (sub.subPoin || []).forEach((poin, pIdx) => {
+          tocEntries.push({ title: (pIdx + 1) + '. ' + (poin.judulPoin || 'Anak Sub-bab'), page: String(pg), level: 3 });
+          pg++;
+        });
+      });
+      tocEntries.push({ title: 'BAB III PENUTUP', page: String(pg), level: 1 });
+      tocEntries.push({ title: 'A. Kesimpulan', page: String(pg), level: 2 });
+      if (formData.useSaran) {
+        tocEntries.push({ title: 'B. Saran', page: String(pg), level: 2 });
+      }
+      tocEntries.push({ title: 'DAFTAR PUSTAKA', page: String(pg + 1), level: 1 });
+
+      let rowsXml = '';
+      tocEntries.forEach(item => {
+        const isLvl1 = item.level === 1;
+        const leftPadTwips = item.level === 1 ? 0 : (item.level === 2 ? 360 : 720);
+        const leaderText = buildTocLeaderLineDocx(item.title, item.level);
+        const boldTag = isLvl1 ? '<w:b/><w:bCs/>' : '';
+        rowsXml += `
+          <w:tr>
+            <w:tc>
+              <w:tcPr>
+                <w:tcW w:w="7120" w:type="dxa"/>
+                <w:tcMar>
+                  <w:top w:w="${isLvl1 ? 80 : 20}" w:type="dxa"/>
+                  <w:left w:w="${leftPadTwips}" w:type="dxa"/>
+                  <w:bottom w:w="40" w:type="dxa"/>
+                  <w:right w:w="80" w:type="dxa"/>
+                </w:tcMar>
+              </w:tcPr>
+              <w:p>
+                <w:pPr>
+                  <w:spacing w:before="0" w:after="0" w:line="276" w:lineRule="auto"/>
+                  <w:jc w:val="left"/>
+                </w:pPr>
+                <w:r>
+                  <w:rPr>
+                    <w:rFonts w:ascii="Times New Roman" w:hAnsi="Times New Roman"/>
+                    ${boldTag}
+                    <w:sz w:val="24"/>
+                    <w:szCs w:val="24"/>
+                  </w:rPr>
+                  <w:t xml:space="preserve">${escapeXml(leaderText)}</w:t>
+                </w:r>
+              </w:p>
+            </w:tc>
+            <w:tc>
+              <w:tcPr>
+                <w:tcW w:w="720" w:type="dxa"/>
+                <w:tcMar>
+                  <w:top w:w="${isLvl1 ? 80 : 20}" w:type="dxa"/>
+                  <w:left w:w="0" w:type="dxa"/>
+                  <w:bottom w:w="40" w:type="dxa"/>
+                  <w:right w:w="0" w:type="dxa"/>
+                </w:tcMar>
+              </w:tcPr>
+              <w:p>
+                <w:pPr>
+                  <w:spacing w:before="0" w:after="0" w:line="276" w:lineRule="auto"/>
+                  <w:jc w:val="right"/>
+                </w:pPr>
+                <w:r>
+                  <w:rPr>
+                    <w:rFonts w:ascii="Times New Roman" w:hAnsi="Times New Roman"/>
+                    ${boldTag}
+                    <w:sz w:val="24"/>
+                    <w:szCs w:val="24"/>
+                  </w:rPr>
+                  <w:t>${escapeXml(item.page)}</w:t>
+                </w:r>
+              </w:p>
+            </w:tc>
+          </w:tr>`;
+      });
+
+      return `<w:tbl>
+        <w:tblPr>
+          <w:tblW w:w="7840" w:type="dxa"/>
+          <w:tblBorders>
+            <w:top w:val="none" w:sz="0" w:space="0" w:color="auto"/>
+            <w:left w:val="none" w:sz="0" w:space="0" w:color="auto"/>
+            <w:bottom w:val="none" w:sz="0" w:space="0" w:color="auto"/>
+            <w:right w:val="none" w:sz="0" w:space="0" w:color="auto"/>
+            <w:insideH w:val="none" w:sz="0" w:space="0" w:color="auto"/>
+            <w:insideV w:val="none" w:sz="0" w:space="0" w:color="auto"/>
+          </w:tblBorders>
+        </w:tblPr>
+        <w:tblGrid>
+          <w:gridCol w:w="7120"/>
+          <w:gridCol w:w="720"/>
+        </w:tblGrid>
+        ${rowsXml}
+      </w:tbl>`;
+    }
+
+    function replaceParagraphByTag(xmlStr, tagLiteral, replacementXml) {
+      const escapedTag = tagLiteral.replace('<', '&lt;').replace('>', '&gt;');
+      const regex = new RegExp('<w:p\\b[^>]*>(?:(?!<\\/w:p>)[\\s\\S])*?' + escapedTag + '(?:(?!<\\/w:p>)[\\s\\S])*?<\\/w:p>', 'g');
+      return xmlStr.replace(regex, replacementXml);
+    }
+
+    const authors = data.penulis || [];
+    const inlineTags = {
+      '&lt;Judul&gt;': escapeXml(data.judul || ''),
+      '&lt;MataKuliah&gt;': escapeXml(data.mataKuliah || ''),
+      '&lt;Dosen&gt;': escapeXml(data.dosen || ''),
+      '&lt;Kelompok&gt;': escapeXml(data.kelompok || ''),
+      '&lt;Fakultas&gt;': escapeXml((data.fakultas || '').toUpperCase()),
+      '&lt;Prodi&gt;': escapeXml((data.prodi || '').toUpperCase()),
+      '&lt;Kota&gt;': escapeXml((data.kota || 'JEMBER').toUpperCase()),
+      '&lt;BulanTahun&gt;': escapeXml((data.bulanTahun || '').toUpperCase())
+    };
+
+    for (let i = 0; i < 10; i++) {
+      const idx = i + 1;
+      inlineTags['&lt;Nama' + idx + '&gt;'] = escapeXml(authors[i] ? (authors[i].nama || '') : '');
+      inlineTags['&lt;Nim' + idx + '&gt;'] = escapeXml(authors[i] ? (authors[i].nim || '') : '');
+    }
+
+    Object.keys(inlineTags).forEach(k => {
+      docXml = docXml.split(k).join(inlineTags[k]);
+    });
+
+    docXml = replaceParagraphByTag(docXml, '<Kata Pengantar>', buildParagraphsBlockXml(data.kataPengantar || '', 0));
+    docXml = replaceParagraphByTag(docXml, '<KataPengantar>', buildParagraphsBlockXml(data.kataPengantar || '', 0));
+    docXml = replaceParagraphByTag(docXml, '<DaftarIsi>', buildTocTableXml(data));
+    docXml = replaceParagraphByTag(docXml, '<LatarBelakang>', buildParagraphsBlockXml(data.latarBelakang || '', 0));
+    docXml = replaceParagraphByTag(docXml, '<RumusanMasalah>', buildListBlockXml(data.rumusanMasalah || [], true));
+
+    if (data.useTujuan && data.tujuanPenulisan && data.tujuanPenulisan.length > 0) {
+      docXml = replaceParagraphByTag(docXml, '<TujuanPenulisan>', buildListBlockXml(data.tujuanPenulisan, true));
+    } else {
+      const rmHeadingRegex = /<w:p\b[^>]*>(?:(?!<\/w:p>)[\s\S])*?Tujuan Penulisan(?:(?!<\/w:p>)[\s\S])*?<\/w:p>/g;
+      docXml = docXml.replace(rmHeadingRegex, '');
+      docXml = replaceParagraphByTag(docXml, '<TujuanPenulisan>', '');
+    }
+
+    docXml = replaceParagraphByTag(docXml, '<Pembahasan>', buildBab2BlockXml(data.pembahasan || []));
+
+    const kesimpulanHeadingXml = `<w:p><w:pPr><w:spacing w:before="160" w:after="80" w:line="360" w:lineRule="auto"/><w:ind w:left="0" w:firstLine="0"/><w:jc w:val="left"/></w:pPr><w:r><w:rPr><w:rFonts w:ascii="Times New Roman" w:hAnsi="Times New Roman"/><w:b/><w:bCs/><w:sz w:val="24"/><w:szCs w:val="24"/></w:rPr><w:t>A. Kesimpulan</w:t></w:r></w:p>`;
+    docXml = replaceParagraphByTag(docXml, '<Kesimpulan>', kesimpulanHeadingXml + buildParagraphsBlockXml(data.kesimpulan || '', 0));
+
+    if (data.useSaran && data.saran && data.saran.trim() !== '') {
+      const saranHeadingXml = `<w:p><w:pPr><w:spacing w:before="160" w:after="80" w:line="360" w:lineRule="auto"/><w:ind w:left="0" w:firstLine="0"/><w:jc w:val="left"/></w:pPr><w:r><w:rPr><w:rFonts w:ascii="Times New Roman" w:hAnsi="Times New Roman"/><w:b/><w:bCs/><w:sz w:val="24"/><w:szCs w:val="24"/></w:rPr><w:t>B. Saran</w:t></w:r></w:p>`;
+      docXml = replaceParagraphByTag(docXml, '<Saran>', saranHeadingXml + buildParagraphsBlockXml(data.saran, 0));
+    } else {
+      docXml = replaceParagraphByTag(docXml, '<Saran>', '');
+    }
+
+    docXml = replaceParagraphByTag(docXml, '<DaftarPustaka>', buildBibliographyBlockXml(data.daftarPustaka || []));
+
+    zip.file('word/document.xml', docXml);
+
+    let footnotesXml = await zip.file('word/footnotes.xml').async('string');
+    let extraFnXml = '';
+    footnoteEntries.forEach(item => {
+      extraFnXml += `<w:footnote w:id="${item.id}"><w:p><w:pPr><w:spacing w:before="0" w:after="40" w:line="240" w:lineRule="auto"/><w:ind w:left="0" w:firstLine="720"/><w:jc w:val="both"/></w:pPr><w:r><w:rPr><w:rFonts w:ascii="Times New Roman" w:hAnsi="Times New Roman"/><w:vertAlign w:val="superscript"/><w:sz w:val="20"/><w:szCs w:val="20"/></w:rPr><w:footnoteRef/></w:r><w:r><w:rPr><w:rFonts w:ascii="Times New Roman" w:hAnsi="Times New Roman"/><w:sz w:val="20"/><w:szCs w:val="20"/></w:rPr><w:t xml:space="preserve"> ${escapeXml(item.text)}</w:t></w:r></w:p></w:footnote>`;
+    });
+    footnotesXml = footnotesXml.replace('</w:footnotes>', extraFnXml + '</w:footnotes>');
+    zip.file('word/footnotes.xml', footnotesXml);
+
+    const footerCenterPageXml = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <w:ftr xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main">
   <w:p>
     <w:pPr>
@@ -1399,29 +1657,14 @@ async function generateAndDownloadDocx() {
       <w:rPr>
         <w:rFonts w:ascii="Times New Roman" w:hAnsi="Times New Roman"/>
         <w:sz w:val="24"/>
+        <w:szCs w:val="24"/>
       </w:rPr>
       <w:fldSimple w:instr="PAGE"/>
     </w:r>
   </w:p>
-</w:ftr>`);
+</w:ftr>`;
 
-    zip.file('word/footer2.xml', `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<w:ftr xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main">
-  <w:p>
-    <w:pPr>
-      <w:jc w:val="center"/>
-    </w:pPr>
-    <w:r>
-      <w:rPr>
-        <w:rFonts w:ascii="Times New Roman" w:hAnsi="Times New Roman"/>
-        <w:sz w:val="24"/>
-      </w:rPr>
-      <w:fldSimple w:instr="PAGE"/>
-    </w:r>
-  </w:p>
-</w:ftr>`);
-
-    zip.file('word/header1.xml', `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+    const headerRightPageXml = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <w:hdr xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main">
   <w:p>
     <w:pPr>
@@ -1431,228 +1674,17 @@ async function generateAndDownloadDocx() {
       <w:rPr>
         <w:rFonts w:ascii="Times New Roman" w:hAnsi="Times New Roman"/>
         <w:sz w:val="24"/>
+        <w:szCs w:val="24"/>
       </w:rPr>
       <w:fldSimple w:instr="PAGE"/>
     </w:r>
   </w:p>
-</w:hdr>`);
+</w:hdr>`;
 
-    let footnoteIdCounter = 1;
-    const footnoteEntries = [];
-
-    function buildXmlParagraph(text, options = {}) {
-      const isArabic = isArabicText(text);
-      let isBlockquote = false;
-      let cleanText = text;
-      if (cleanText.startsWith('[BLOCKQUOTE]')) {
-        isBlockquote = true;
-        cleanText = cleanText.replace('[BLOCKQUOTE]', '').trim();
-      }
-
-      let pPr = '';
-      if (options.isHeading1) {
-        pPr = '<w:pPr><w:jc w:val="center"/><w:spacing w:before="240" w:after="160" w:line="360" w:lineRule="auto"/></w:pPr>';
-      } else if (options.isHeading2) {
-        pPr = '<w:pPr><w:jc w:val="left"/><w:spacing w:before="200" w:after="100" w:line="360" w:lineRule="auto"/></w:pPr>';
-      } else if (options.isHeading3) {
-        pPr = '<w:pPr><w:ind w:left="360"/><w:jc w:val="left"/><w:spacing w:before="160" w:after="80" w:line="360" w:lineRule="auto"/></w:pPr>';
-      } else if (isArabic) {
-        pPr = '<w:pPr><w:bidi/><w:jc w:val="right"/><w:spacing w:line="240" w:lineRule="auto" w:before="120" w:after="120"/></w:pPr>';
-      } else if (isBlockquote) {
-        pPr = '<w:pPr><w:ind w:left="720"/><w:jc w:val="both"/><w:spacing w:line="240" w:lineRule="auto" w:before="120" w:after="120"/></w:pPr>';
-      } else if (options.isBib) {
-        pPr = '<w:pPr><w:ind w:left="720" w:hanging="720"/><w:jc w:val="both"/><w:spacing w:line="240" w:lineRule="auto" w:before="0" w:after="240"/></w:pPr>';
-      } else if (options.isList) {
-        pPr = '<w:pPr><w:ind w:left="360" w:hanging="360"/><w:jc w:val="both"/><w:spacing w:line="360" w:lineRule="auto" w:after="80"/></w:pPr>';
-      } else {
-        pPr = '<w:pPr><w:ind w:firstLine="720"/><w:jc w:val="both"/><w:spacing w:line="360" w:lineRule="auto" w:after="80"/></w:pPr>';
-      }
-
-      const segments = cleanText.split(/(\^\[[^\]]+\])/g);
-      let runsXml = '';
-      segments.forEach(seg => {
-        if (!seg) return;
-        if (seg.startsWith('^[') && seg.endsWith(']')) {
-          const fnContent = seg.slice(2, -1).trim();
-          const curId = footnoteIdCounter++;
-          footnoteEntries.push({ id: curId, text: fnContent });
-          runsXml += `<w:r><w:rPr><w:rStyle w:val="FootnoteReference"/></w:rPr><w:footnoteReference w:id="${curId}"/></w:r>`;
-        } else {
-          const fontTag = isArabic
-            ? '<w:rFonts w:ascii="Traditional Arabic" w:hAnsi="Traditional Arabic" w:cs="Traditional Arabic"/><w:sz w:val="32"/><w:szCs w:val="32"/><w:rtl/>'
-            : `<w:rFonts w:ascii="Times New Roman" w:hAnsi="Times New Roman"/><w:sz w:val="24"/><w:szCs w:val="24"/>${options.bold ? '<w:b/>' : ''}`;
-          runsXml += `<w:r><w:rPr>${fontTag}</w:rPr><w:t xml:space="preserve">${escapeXml(seg)}</w:t></w:r>`;
-        }
-      });
-      return `<w:p>${pPr}${runsXml}</w:p>`;
-    }
-
-    let docBody = '';
-
-    docBody += `<w:p><w:pPr><w:jc w:val="center"/><w:spacing w:before="400" w:after="160"/></w:pPr><w:r><w:rPr><w:rFonts w:ascii="Times New Roman" w:hAnsi="Times New Roman"/><w:b/><w:sz w:val="28"/><w:szCs w:val="28"/></w:rPr><w:t>${escapeXml(data.judul || 'JUDUL MAKALAH')}</w:t></w:r></w:p>`;
-    docBody += `<w:p><w:pPr><w:jc w:val="center"/><w:spacing w:before="200" w:after="400"/></w:pPr><w:r><w:rPr><w:rFonts w:ascii="Times New Roman" w:hAnsi="Times New Roman"/><w:b/><w:sz w:val="28"/><w:szCs w:val="28"/></w:rPr><w:t>MAKALAH</w:t></w:r></w:p>`;
-    docBody += `<w:p><w:pPr><w:jc w:val="center"/><w:spacing w:before="600" w:after="200"/></w:pPr><w:r><w:rPr><w:rFonts w:ascii="Times New Roman" w:hAnsi="Times New Roman"/><w:sz w:val="24"/></w:rPr><w:t>Diajukan untuk Memenuhi Tugas Mata Kuliah: ${escapeXml(data.mataKuliah || '')}</w:t></w:r></w:p>`;
-    docBody += `<w:p><w:pPr><w:jc w:val="center"/><w:spacing w:before="0" w:after="400"/></w:pPr><w:r><w:rPr><w:rFonts w:ascii="Times New Roman" w:hAnsi="Times New Roman"/><w:b/><w:sz w:val="24"/></w:rPr><w:t>Dosen Pengampu: ${escapeXml(data.dosen || '')}</w:t></w:r></w:p>`;
-    docBody += `<w:p><w:pPr><w:jc w:val="center"/><w:spacing w:before="400" w:after="120"/></w:pPr><w:r><w:rPr><w:rFonts w:ascii="Times New Roman" w:hAnsi="Times New Roman"/><w:b/><w:sz w:val="24"/></w:rPr><w:t>Disusun Oleh: ${escapeXml(data.kelompok || 'Kelompok')}</w:t></w:r></w:p>`;
-
-    (data.penulis || []).forEach(p => {
-      docBody += `<w:p><w:pPr><w:jc w:val="center"/><w:spacing w:before="0" w:after="60"/></w:pPr><w:r><w:rPr><w:rFonts w:ascii="Times New Roman" w:hAnsi="Times New Roman"/><w:sz w:val="24"/></w:rPr><w:t>${escapeXml(p.nama || '')} (NIM: ${escapeXml(p.nim || '')})</w:t></w:r></w:p>`;
-    });
-
-    docBody += `<w:p><w:pPr><w:jc w:val="center"/><w:spacing w:before="600" w:after="60"/></w:pPr><w:r><w:rPr><w:rFonts w:ascii="Times New Roman" w:hAnsi="Times New Roman"/><w:b/><w:sz w:val="24"/></w:rPr><w:t>PROGRAM STUDI ${escapeXml(data.prodi || '')}</w:t></w:r></w:p>`;
-    docBody += `<w:p><w:pPr><w:jc w:val="center"/><w:spacing w:before="0" w:after="60"/></w:pPr><w:r><w:rPr><w:rFonts w:ascii="Times New Roman" w:hAnsi="Times New Roman"/><w:b/><w:sz w:val="24"/></w:rPr><w:t>FAKULTAS ${escapeXml(data.fakultas || '')}</w:t></w:r></w:p>`;
-    docBody += `<w:p><w:pPr><w:jc w:val="center"/><w:spacing w:before="0" w:after="60"/></w:pPr><w:r><w:rPr><w:rFonts w:ascii="Times New Roman" w:hAnsi="Times New Roman"/><w:b/><w:sz w:val="24"/></w:rPr><w:t>UNIVERSITAS ISLAM NEGERI KIAI HAJI ACHMAD SIDDIQ JEMBER</w:t></w:r></w:p>`;
-    docBody += `<w:p><w:pPr><w:jc w:val="center"/><w:spacing w:before="0" w:after="60"/></w:pPr><w:r><w:rPr><w:rFonts w:ascii="Times New Roman" w:hAnsi="Times New Roman"/><w:b/><w:sz w:val="24"/></w:rPr><w:t>${escapeXml(data.bulanTahun || '2026')}</w:t></w:r></w:p>`;
-
-    docBody += `<w:p><w:pPr><w:sectPr><w:pgSz w:w="11906" w:h="16838"/><w:pgMar w:top="1701" w:right="1701" w:bottom="1701" w:left="2268"/><w:type w:val="nextPage"/></w:sectPr></w:pPr></w:p>`;
-
-    docBody += buildXmlParagraph('KATA PENGANTAR', { isHeading1: true, bold: true });
-    (data.kataPengantar || '').split('\n').map(l => l.trim()).filter(l => l !== '').forEach(line => {
-      docBody += buildXmlParagraph(line);
-    });
-
-    docBody += `<w:p><w:r><w:br w:type="page"/></w:r></w:p>`;
-    docBody += buildXmlParagraph('DAFTAR ISI', { isHeading1: true, bold: true });
-
-    const tocList = [];
-    tocList.push({ title: 'KATA PENGANTAR', page: 'i', bold: true });
-    tocList.push({ title: 'DAFTAR ISI', page: 'ii', bold: true });
-    tocList.push({ title: 'BAB I PENDAHULUAN', page: '1', bold: true });
-    tocList.push({ title: 'A. Latar Belakang', page: '1', bold: false });
-    tocList.push({ title: 'B. Rumusan Masalah', page: '2', bold: false });
-    if (data.useTujuan) tocList.push({ title: 'C. Tujuan Penulisan', page: '2', bold: false });
-    tocList.push({ title: 'BAB II PEMBAHASAN', page: '3', bold: true });
-    (data.pembahasan || []).forEach((sub, sIdx) => {
-      const letter = letters[sIdx] || String(sIdx + 1);
-      tocList.push({ title: `${letter}. ${sub.judulSub || 'Sub-bab'}`, page: '3', bold: false });
-      (sub.subPoin || []).forEach((pt, pIdx) => {
-        tocList.push({ title: `${pIdx + 1}. ${pt.judulPoin || 'Anak Sub-bab'}`, page: '4', bold: false });
-      });
-    });
-    tocList.push({ title: 'BAB III PENUTUP', page: '5', bold: true });
-    tocList.push({ title: 'A. Kesimpulan', page: '5', bold: false });
-    if (data.useSaran) tocList.push({ title: 'B. Saran', page: '5', bold: false });
-    tocList.push({ title: 'DAFTAR PUSTAKA', page: '6', bold: true });
-
-    tocList.forEach(item => {
-      docBody += `<w:p><w:pPr><w:tabs><w:tab w:val="right" w:leader="dot" w:pos="7938"/></w:tabs><w:spacing w:line="280" w:lineRule="auto" w:before="40" w:after="40"/></w:pPr><w:r><w:rPr><w:rFonts w:ascii="Times New Roman" w:hAnsi="Times New Roman"/><w:sz w:val="24"/>${item.bold ? '<w:b/>' : ''}</w:rPr><w:t>${escapeXml(item.title)}</w:t></w:r><w:r><w:tab/></w:r><w:r><w:rPr><w:rFonts w:ascii="Times New Roman" w:hAnsi="Times New Roman"/><w:sz w:val="24"/>${item.bold ? '<w:b/>' : ''}</w:rPr><w:t>${escapeXml(item.page)}</w:t></w:r></w:p>`;
-    });
-
-    docBody += `<w:p><w:pPr><w:sectPr><w:footerReference w:type="default" r:id="rIdFooter2"/><w:pgSz w:w="11906" w:h="16838"/><w:pgMar w:top="1701" w:right="1701" w:bottom="1701" w:left="2268"/><w:pgNumType w:fmt="lowerRoman" w:start="1"/><w:type w:val="nextPage"/></w:sectPr></w:pPr></w:p>`;
-
-    docBody += buildXmlParagraph('BAB I PENDAHULUAN', { isHeading1: true, bold: true });
-    docBody += buildXmlParagraph('A. Latar Belakang', { isHeading2: true, bold: true });
-    (data.latarBelakang || '').split('\n').map(l => l.trim()).filter(l => l !== '').forEach(line => {
-      docBody += buildXmlParagraph(line);
-    });
-
-    docBody += buildXmlParagraph('B. Rumusan Masalah', { isHeading2: true, bold: true });
-    (data.rumusanMasalah || []).forEach((r, idx) => {
-      docBody += buildXmlParagraph(`${idx + 1}. ${r}`, { isList: true });
-    });
-
-    if (data.useTujuan && data.tujuanPenulisan && data.tujuanPenulisan.length > 0) {
-      docBody += buildXmlParagraph('C. Tujuan Penulisan', { isHeading2: true, bold: true });
-      data.tujuanPenulisan.forEach((t, idx) => {
-        docBody += buildXmlParagraph(`${idx + 1}. ${t}`, { isList: true });
-      });
-    }
-
-    docBody += `<w:p><w:pPr><w:sectPr><w:headerReference w:type="default" r:id="rIdHeader1"/><w:footerReference w:type="firstPage" r:id="rIdFooter1"/><w:pgSz w:w="11906" w:h="16838"/><w:pgMar w:top="1701" w:right="1701" w:bottom="1701" w:left="2268"/><w:pgNumType w:start="1"/><w:titlePg/><w:type w:val="nextPage"/></w:sectPr></w:pPr></w:p>`;
-
-    docBody += buildXmlParagraph('BAB II PEMBAHASAN', { isHeading1: true, bold: true });
-    (data.pembahasan || []).forEach((sub, sIdx) => {
-      const letter = letters[sIdx] || String(sIdx + 1);
-      docBody += buildXmlParagraph(`${letter}. ${sub.judulSub || 'Sub-bab'}`, { isHeading2: true, bold: true });
-      if (sub.isiSub && sub.isiSub.trim()) {
-        sub.isiSub.split('\n').map(l => l.trim()).filter(l => l !== '').forEach(l => {
-          docBody += buildXmlParagraph(l);
-        });
-      }
-      (sub.subPoin || []).forEach((pt, pIdx) => {
-        docBody += buildXmlParagraph(`${pIdx + 1}. ${pt.judulPoin || 'Anak Sub-bab'}`, { isHeading3: true, bold: true });
-        if (pt.isiPoin && pt.isiPoin.trim()) {
-          pt.isiPoin.split('\n').map(l => l.trim()).filter(l => l !== '').forEach(l => {
-            docBody += buildXmlParagraph(l);
-          });
-        }
-      });
-    });
-
-    docBody += `<w:p><w:pPr><w:sectPr><w:headerReference w:type="default" r:id="rIdHeader1"/><w:footerReference w:type="firstPage" r:id="rIdFooter1"/><w:pgSz w:w="11906" w:h="16838"/><w:pgMar w:top="1701" w:right="1701" w:bottom="1701" w:left="2268"/><w:titlePg/><w:type w:val="nextPage"/></w:sectPr></w:pPr></w:p>`;
-
-    docBody += buildXmlParagraph('BAB III PENUTUP', { isHeading1: true, bold: true });
-    docBody += buildXmlParagraph('A. Kesimpulan', { isHeading2: true, bold: true });
-    (data.kesimpulan || '').split('\n').map(l => l.trim()).filter(l => l !== '').forEach(line => {
-      docBody += buildXmlParagraph(line);
-    });
-
-    if (data.useSaran && data.saran && data.saran.trim()) {
-      docBody += buildXmlParagraph('B. Saran', { isHeading2: true, bold: true });
-      data.saran.split('\n').map(l => l.trim()).filter(l => l !== '').forEach(line => {
-        docBody += buildXmlParagraph(line);
-      });
-    }
-
-    docBody += `<w:p><w:pPr><w:sectPr><w:headerReference w:type="default" r:id="rIdHeader1"/><w:footerReference w:type="firstPage" r:id="rIdFooter1"/><w:pgSz w:w="11906" w:h="16838"/><w:pgMar w:top="1701" w:right="1701" w:bottom="1701" w:left="2268"/><w:titlePg/><w:type w:val="nextPage"/></w:sectPr></w:pPr></w:p>`;
-
-    docBody += buildXmlParagraph('DAFTAR PUSTAKA', { isHeading1: true, bold: true });
-    (data.daftarPustaka || [])
-      .map(b => b.trim())
-      .filter(b => b !== '')
-      .sort((a, b) => a.localeCompare(b, 'id'))
-      .forEach(entry => {
-        docBody += buildXmlParagraph(entry, { isBib: true });
-      });
-
-    docBody += `<w:sectPr><w:headerReference w:type="default" r:id="rIdHeader1"/><w:footerReference w:type="firstPage" r:id="rIdFooter1"/><w:pgSz w:w="11906" w:h="16838"/><w:pgMar w:top="1701" w:right="1701" w:bottom="1701" w:left="2268"/><w:titlePg/></w:sectPr>`;
-
-    zip.file('word/document.xml', `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<w:document xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships">
-  <w:body>
-    ${docBody}
-  </w:body>
-</w:document>`);
-
-    let footnotesXml = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<w:footnotes xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main">
-  <w:footnote w:type="separator" w:id="-1">
-    <w:p><w:r><w:separator/></w:r></w:p>
-  </w:footnote>
-  <w:footnote w:type="continuationSeparator" w:id="0">
-    <w:p><w:r><w:continuationSeparator/></w:r></w:p>
-  </w:footnote>`;
-
-    footnoteEntries.forEach(item => {
-      footnotesXml += `
-  <w:footnote w:id="${item.id}">
-    <w:p>
-      <w:pPr>
-        <w:ind w:firstLine="720"/>
-        <w:jc w:val="both"/>
-        <w:spacing w:line="240" w:lineRule="auto" w:after="40"/>
-      </w:pPr>
-      <w:r>
-        <w:rPr>
-          <w:rStyle w:val="FootnoteReference"/>
-          <w:rFonts w:ascii="Times New Roman" w:hAnsi="Times New Roman"/>
-          <w:sz w:val="20"/>
-        </w:rPr>
-        <w:footnoteRef/>
-      </w:r>
-      <w:r>
-        <w:rPr>
-          <w:rFonts w:ascii="Times New Roman" w:hAnsi="Times New Roman"/>
-          <w:sz w:val="20"/>
-        </w:rPr>
-        <w:t xml:space="preserve"> ${escapeXml(item.text)}</w:t>
-      </w:r>
-    </w:p>
-  </w:footnote>`;
-    });
-
-    footnotesXml += `\n</w:footnotes>`;
-    zip.file('word/footnotes.xml', footnotesXml);
+    zip.file('word/footer1.xml', footerCenterPageXml);
+    zip.file('word/footer2.xml', footerCenterPageXml);
+    zip.file('word/footer4.xml', footerCenterPageXml);
+    zip.file('word/header1.xml', headerRightPageXml);
 
     const docxBlob = await zip.generateAsync({
       type: 'blob',
@@ -1669,7 +1701,7 @@ async function generateAndDownloadDocx() {
     document.body.removeChild(link);
     setTimeout(() => URL.revokeObjectURL(downloadUrl), 5000);
 
-    showToast('File ' + safeName + '.docx berhasil diunduh.');
+    showToast('File ' + safeName + '.docx (Template V3 Asli) berhasil diunduh.');
   } catch (err) {
     hideCenterLoading();
     alert('Gagal membuat file DOCX: ' + err.message);
