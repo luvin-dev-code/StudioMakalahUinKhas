@@ -92,7 +92,6 @@ window.addEventListener('DOMContentLoaded', () => {
   updateOutputFileName();
   refreshTocPreview();
   switchStep('step-identitas');
-  openIntroModal();
 
   document.addEventListener('focusin', (e) => {
     if (e.target && e.target.tagName === 'TEXTAREA') {
@@ -104,12 +103,76 @@ window.addEventListener('DOMContentLoaded', () => {
 document.addEventListener('click', (e) => {
   const popover = document.getElementById('optionsPopover');
   const moreBtn = document.getElementById('dockMoreBtn');
-  if (!popover.classList.contains('hidden')) {
-    if (!popover.contains(e.target) && !moreBtn.contains(e.target)) {
+  if (popover && !popover.classList.contains('hidden')) {
+    if (!popover.contains(e.target) && (!moreBtn || !moreBtn.contains(e.target)) && !e.target.closest('[data-nav="contact"]') && !e.target.closest('.btn-mobile-menu')) {
       popover.classList.add('hidden');
     }
   }
 });
+
+function handleTopNav(navKey) {
+  document.querySelectorAll('.nav-link-item').forEach(btn => {
+    btn.classList.toggle('active', btn.getAttribute('data-nav') === navKey);
+  });
+  if (navKey === 'home') {
+    switchStep('step-identitas');
+  } else if (navKey === 'generator') {
+    switchStep('step-bab1');
+  }
+}
+
+function handleDockMenu(menuKey) {
+  document.querySelectorAll('.dock-nav-item').forEach(btn => btn.classList.remove('active'));
+  if (menuKey === 'home') {
+    document.getElementById('dockManualBtn').classList.add('active');
+    switchStep('step-identitas');
+  } else if (menuKey === 'riwayat') {
+    document.getElementById('dockHistoryBtn').classList.add('active');
+    if (appState.docGenerated) {
+      openSplitPreview();
+      showToast('Menampilkan pratinjau dokumen terakhir.');
+    } else {
+      switchStep('step-daftarisi');
+      showToast('Menampilkan kerangka Daftar Isi makalah.');
+    }
+  }
+}
+
+function toggleEditorAiBanner() {
+  const banner = document.getElementById('aiAssistantBanner');
+  if (!banner) return;
+  const isHidden = banner.classList.contains('hidden');
+  if (isHidden) {
+    banner.classList.remove('hidden');
+    appState.mode = 'ai';
+    banner.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  } else {
+    banner.classList.add('hidden');
+    appState.mode = 'manual';
+  }
+}
+
+function toggleThemeBrightness() {
+  document.body.classList.toggle('theme-dimmed');
+  const isDimmed = document.body.classList.contains('theme-dimmed');
+  showToast(isDimmed ? 'Tampilan kontras lembut diaktifkan.' : 'Tampilan cerah standar diaktifkan.');
+}
+
+function toggleMobileDrawer() {
+  const popover = document.getElementById('optionsPopover');
+  if (popover) {
+    popover.classList.toggle('hidden');
+  }
+}
+
+function resetFormConfirm() {
+  if (!confirm('Ingin mengatur ulang formulir ke bagian awal?')) {
+    return;
+  }
+  switchStep('step-identitas');
+  closeSplitPreview();
+  showToast('Kembali ke halaman utama identitas makalah.');
+}
 
 function openIntroModal() {
   document.getElementById('introModal').classList.remove('hidden');
@@ -416,7 +479,7 @@ function renderAdminFilesTable(files) {
   tbody.innerHTML = files.map(f => `
     <tr>
       <td>
-        <div style="font-weight:600; color:#0F172A;">${escapeHtml(f.fileName || 'Tanpa Judul')}</div>
+        <div style="font-weight:700; color:#0F172A;">${escapeHtml(f.fileName || 'Tanpa Judul')}</div>
         <div style="font-family:var(--font-mono); font-size:11px; color:#64748B;">ID: ${escapeHtml(f.docId)}</div>
       </td>
       <td style="white-space:nowrap; color:#475569;">${escapeHtml(formatAdminDate(f.createdAt))}</td>
@@ -458,9 +521,10 @@ async function handleDeleteMakalahFile(docId, fileName) {
 
 function setEditorMode(mode) {
   appState.mode = mode;
-  document.getElementById('dockManualBtn').classList.toggle('active', mode === 'manual');
-  document.getElementById('dockAiBtn').classList.toggle('active', mode === 'ai');
-  document.getElementById('aiAssistantBanner').classList.toggle('hidden', mode !== 'ai');
+  const banner = document.getElementById('aiAssistantBanner');
+  if (banner) {
+    banner.classList.toggle('hidden', mode !== 'ai');
+  }
 }
 
 function switchStep(stepId) {
@@ -469,7 +533,7 @@ function switchStep(stepId) {
   const targetPanel = document.getElementById(stepId);
   if (targetPanel) targetPanel.classList.add('active');
 
-  document.querySelectorAll('.step-circle').forEach(c => {
+  document.querySelectorAll('.step-circle[data-step]').forEach(c => {
     c.classList.toggle('active', c.getAttribute('data-step') === stepId);
   });
 
@@ -552,7 +616,12 @@ function focusActivePanelInput() {
 function insertTemplateParagraph() {
   const ta = getTargetTextarea();
   if (!ta) {
-    showToast('Buka bagian yang memiliki kolom paragraf terlebih dahulu.');
+    switchStep('step-bab1');
+    setTimeout(() => {
+      const target = document.getElementById('txtLatarBelakang');
+      if (target) target.focus();
+    }, 100);
+    showToast('Silakan ketik pada kolom paragraf Bab I.');
     return;
   }
   const snippet = (ta.value.trim() ? '\n' : '') + 'Berdasarkan tinjauan literatur tersebut, dapat dipahami bahwa ';
@@ -563,7 +632,8 @@ function insertTemplateParagraph() {
 function insertActiveFootnote() {
   const ta = getTargetTextarea();
   if (!ta) {
-    showToast('Pilih atau buka kolom teks pembahasan/latar belakang terlebih dahulu.');
+    switchStep('step-bab1');
+    showToast('Buka kolom teks Latar Belakang atau Pembahasan terlebih dahulu.');
     return;
   }
   const snippet = '^[Nama Depan Nama Belakang, Judul Buku (Kota: Penerbit, 2024), 25.]';
@@ -574,19 +644,13 @@ function insertActiveFootnote() {
 function insertActiveBlockquote() {
   const ta = getTargetTextarea();
   if (!ta) {
-    showToast('Pilih atau buka kolom teks pembahasan/latar belakang terlebih dahulu.');
+    switchStep('step-bab1');
+    showToast('Buka kolom teks Latar Belakang atau Pembahasan terlebih dahulu.');
     return;
   }
   const snippet = (ta.value.trim() ? '\n' : '') + '[BLOCKQUOTE] ';
   insertAtElement(ta, snippet);
   showToast('Penanda kutipan panjang (>= 5 baris) disisipkan.');
-}
-
-function scrollToBottomGenerate() {
-  const bar = document.getElementById('bottomGenerateBar');
-  if (bar) {
-    bar.scrollIntoView({ behavior: 'smooth' });
-  }
 }
 
 function insertAtElement(el, snippet) {
@@ -1105,7 +1169,7 @@ function renderMembers() {
     const div = document.createElement('div');
     div.className = 'dyn-row';
     div.innerHTML = `
-      <span class="row-badge">${idx + 1}</span>
+      <span class="row-badge">${idx + 1} &bull;</span>
       <input type="text" class="form-input input-nama" placeholder="Nama Lengkap" value="${escapeAttr(m.nama)}" oninput="editMember(${idx}, 'nama', this.value)">
       <input type="text" class="form-input input-nim" placeholder="NIM Mahasiswa" value="${escapeAttr(m.nim)}" oninput="editMember(${idx}, 'nim', this.value)">
       <button type="button" class="btn-remove" onclick="deleteMember(${idx})">Hapus</button>
@@ -1373,7 +1437,7 @@ async function generateDocument() {
   const btn = document.getElementById('btnBuildDoc');
   btn.disabled = true;
   updateStatusBanner('Memproses dokumen...', 'warn');
-  showCenterLoading('Memproses Dokumen Makalah...', 'Mengisi Template Makalah V3 UIN KHAS Jember, menyusun Tabel Daftar Isi, dan menyematkan Native Footnote.');
+  showCenterLoading('Memproses Dokumen Makalah...', 'Mengisi Template Makalah UIN KHAS Jember, menyusun Tabel Daftar Isi, dan menyematkan Native Footnote.');
 
   try {
     const res = await fetch('/api/makalah/build', {
@@ -1477,7 +1541,7 @@ async function generateAndDownloadDocx() {
     return;
   }
 
-  showCenterLoading('Menyusun Dokumen Word (.docx)...', 'Mengisi Template Makalah V3.docx asli Anda beserta Logo, Tabel Anggota, Daftar Isi, dan Native Footnote.');
+  showCenterLoading('Menyusun Dokumen Word (.docx)...', 'Mengisi Template Makalah.docx beserta Logo, Tabel Anggota, Daftar Isi, dan Native Footnote.');
 
   try {
     const data = gatherFormData();
@@ -1486,7 +1550,7 @@ async function generateAndDownloadDocx() {
 
     const tplResponse = await fetch('/template.docx');
     if (!tplResponse.ok) {
-      throw new Error('File /template.docx belum ditemukan di server. Pastikan file template.docx sudah diunggah ke GitHub.');
+      throw new Error('File /template.docx belum ditemukan di server. Pastikan file template.docx sudah diunggah.');
     }
     const tplBuffer = await tplResponse.arrayBuffer();
     const zip = await JSZip.loadAsync(tplBuffer);
